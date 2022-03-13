@@ -7,6 +7,21 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid />
+    <Grid RowDefinitions="28,*">
+        <StackPanel
+            x:Name="TitleBar"
+            Grid.Row="0"
+            Margin="0,0,120,0"
+            Background="{ThemeResource AppBarBackgroundThemeBrush}"
+            Orientation="Horizontal">
+            <Image Source="Assets/windows-icon.gif" />
+            <TextBlock
+                Margin="10,0,0,0"
+                VerticalAlignment="Center"
+                Text="{x:Bind Title}" />
+
+        </StackPanel>
+
+    </Grid>
 
 </Window>
