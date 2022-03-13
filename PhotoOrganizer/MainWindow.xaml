@@ -2,12 +2,29 @@
     x:Class="PhotoOrganizer.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:PhotoOrganizer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid RowDefinitions="28,*">
+    <Grid RowDefinitions="28,Auto,*">
+        <!--#region Resources-->
+        <Grid.Resources>
+            <Style TargetType="controls:HeaderedContentControl">
+                <Setter Property="HeaderTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <TextBlock FontWeight="SemiBold" Text="{Binding}" />
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            </Style>
+        </Grid.Resources>
+        <!--#endregion-->
+
+        <!--#region Title Bar-->
         <StackPanel
             x:Name="TitleBar"
             Grid.Row="0"
@@ -16,11 +33,42 @@
             Orientation="Horizontal">
             <Image Source="Assets/windows-icon.gif" />
             <TextBlock
+                FontWeight="SemiBold"
                 Margin="10,0,0,0"
                 VerticalAlignment="Center"
                 Text="{x:Bind Title}" />
-
         </StackPanel>
+        <!--#endregion-->
+
+        <!--#region Operations-->
+        <Grid
+            Grid.Row="1"
+            Margin="10"
+            ColumnDefinitions="Auto,*"
+            ColumnSpacing="5"
+            RowSpacing="5">
+            <!--  Start Button  -->
+            <Button
+                x:Name="StartButton"
+                Grid.Column="0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Background="{ThemeResource SystemAccentColorDark1}"
+                Click="StartButton_Click"
+                Content="Start" />
+            <Grid Grid.Column="1" RowDefinitions="Auto,Auto">
+                <!--  Input Folder  -->
+                <controls:HeaderedContentControl Grid.Row="0" Header="Input Folder">
+                    <TextBox IsReadOnly="True" Text="{x:Bind ViewModel.InputFolder.Path, Mode=OneWay}" />
+                </controls:HeaderedContentControl>
+                <!--  Output Folder  -->
+                <controls:HeaderedContentControl Grid.Row="1" Header="Output Folder">
+                    <TextBox IsReadOnly="True" Text="{x:Bind ViewModel.OutputFolder.Path, Mode=OneWay}" />
+                </controls:HeaderedContentControl>
+            </Grid>
+
+        </Grid>
+        <!--#endregion-->
 
     </Grid>
 
