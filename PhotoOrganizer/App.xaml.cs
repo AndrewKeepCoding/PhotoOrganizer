@@ -1,4 +1,6 @@
-﻿using Microsoft.UI.Xaml;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 
 namespace PhotoOrganizer;
 
@@ -14,6 +16,10 @@ public partial class App : Application
     public App()
     {
         this.InitializeComponent();
+
+        Ioc.Default.ConfigureServices(new ServiceCollection()
+            
+            .BuildServiceProvider());
     }
 
     /// <summary>
