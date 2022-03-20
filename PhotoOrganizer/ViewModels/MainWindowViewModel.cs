@@ -19,6 +19,15 @@ public partial class MainWindowViewModel
     private StorageFolder? _inputFolder;
 
     [ObservableProperty]
+    private bool _hasPhotos;
+
+    [ObservableProperty]
+    private int _foundFilesCount;
+
+    [ObservableProperty]
+    private int _loadedFilesCount;
+
+    [ObservableProperty]
     private StorageFolder? _outputFolder;
 
     [ObservableProperty]
@@ -55,7 +64,11 @@ public partial class MainWindowViewModel
         if (files is null)
             return;
 
+
         List<PhotoViewModel> photoViewModels = new();
+        IProgress<int> progress = new Progress<int>(x => LoadedFilesCount = x);
+        FoundFilesCount = files.Count;
+        int reportingInterval = Math.Max(files.Count / 100, 1);
 
         foreach (StorageFile file in files)
         {
@@ -71,9 +84,15 @@ public partial class MainWindowViewModel
                 .BuildAsync();
 
             photoViewModels.Add(photoViewModel);
-        }
 
+            if ((photoViewModels.Count % reportingInterval) == 0)
+            {
+                progress.Report(photoViewModels.Count);
+            }
+        }
+        LoadedFilesCount = photoViewModels.Count;
         Photos = new ObservableCollection<PhotoViewModel>(photoViewModels);
+        HasPhotos = Photos.Count > 0;
     }
 
     [ICommand]

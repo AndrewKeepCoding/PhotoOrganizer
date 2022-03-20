@@ -98,11 +98,25 @@
                 BorderThickness="1"
                 RowDefinitions="Auto,*">
 
-                <Grid Grid.Row="0" Margin="5,0,5,0">
+                <Grid
+                    Grid.Row="0"
+                    Margin="5,0,5,0"
+                    ColumnDefinitions="Auto,*">
                     <TextBlock
                         FontSize="15"
                         FontWeight="Bold"
                         Text="Input" />
+                    <TextBlock
+                        Grid.Column="1"
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Bottom"
+                        Visibility="{x:Bind ViewModel.HasPhotos, Mode=OneWay}">
+                        <Run Text="(" />
+                        <Run Text="{x:Bind ViewModel.LoadedFilesCount, Mode=OneWay}" />
+                        <Run Text=" / " />
+                        <Run Text="{x:Bind ViewModel.FoundFilesCount, Mode=OneWay}" />
+                        <Run Text=")" />
+                    </TextBlock>
                 </Grid>
 
                 <ScrollViewer
@@ -161,9 +175,6 @@
                         </DataTemplate>
                     </ItemsRepeater>
                 </ScrollViewer>
-
-
-
             </Grid>
 
             <!--  Grid Splitter Bar  -->
@@ -179,15 +190,7 @@
                 Grid.Column="2"
                 BorderBrush="Gray"
                 BorderThickness="1" />
-
-
-
         </Grid>
-
-
-
-
-
         <!--#endregion-->
 
         <!--#region Start Settings Dialog-->
@@ -292,6 +295,54 @@
                 </controls:HeaderedContentControl>
             </StackPanel>
         </ContentDialog>
+        <!--#endregion-->
+
+        <!--#region Loading Screen-->
+        <Grid
+            Grid.Row="0"
+            Grid.RowSpan="3"
+            Background="Black"
+            ColumnDefinitions="*,*,*"
+            Opacity="0.9"
+            RowDefinitions="*,*,*"
+            Visibility="{x:Bind ViewModel.LoadPhotosCommand.IsRunning, Mode=OneWay}">
+            <StackPanel
+                Grid.Row="1"
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                Spacing="10">
+                <!--  Message  -->
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Text="Loading..." />
+                <!--  Progress Bar  -->
+                <ProgressBar
+                    x:Name="LoadingProgressBar"
+                    Height="30"
+                    Maximum="{x:Bind ViewModel.FoundFilesCount, Mode=OneWay}"
+                    Value="{x:Bind ViewModel.LoadedFilesCount, Mode=OneWay}" />
+                <!--  Counter  -->
+                <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10">
+                    <TextBlock
+                        Grid.Column="0"
+                        HorizontalAlignment="Right"
+                        Text="{x:Bind ViewModel.LoadedFilesCount, Mode=OneWay}" />
+                    <TextBlock Grid.Column="1" Text=" / " />
+                    <TextBlock
+                        Grid.Column="2"
+                        HorizontalAlignment="Left"
+                        Text="{x:Bind ViewModel.FoundFilesCount, Mode=OneWay}" />
+                </Grid>
+                <!--  Cancel Button  -->
+                <Button
+                    x:Name="CancelButton"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    Click="CancelButton_Click"
+                    Content="Cancel" />
+            </StackPanel>
+        </Grid>
         <!--#endregion-->
 
     </Grid>
