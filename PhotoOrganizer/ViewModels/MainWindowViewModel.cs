@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -18,6 +19,10 @@ public partial class MainWindowViewModel
     [ObservableProperty]
     private StorageFolder? _outputFolder;
 
+
+    [ObservableProperty]
+    private ObservableCollection<PhotoViewModel> _photos = new();
+
     public MainWindowViewModel()
     {
 
@@ -33,6 +38,9 @@ public partial class MainWindowViewModel
         if (folder is null)
             return;
 
+        Photos.Clear();
+
+
         List<string> fileTypeFilter = new();
         fileTypeFilter.Add(".jpg");
         fileTypeFilter.Add(".jpeg");
@@ -42,6 +50,22 @@ public partial class MainWindowViewModel
         IReadOnlyList<StorageFile>? files = await results.GetFilesAsync();
         if (files is null)
             return;
+
+        List<PhotoViewModel> photoViewModels = new();
+
+        foreach (StorageFile file in files)
+        {
+            if (cancellationToken.IsCancellationRequested is true)
+                break;
+
+            PhotoViewModel photoViewModel = new(file);
+
+            photoViewModels.Add(photoViewModel);
+
+
+        }
+
+        Photos = new ObservableCollection<PhotoViewModel>(photoViewModels);
 
 
     }
