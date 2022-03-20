@@ -104,4 +104,9 @@ public sealed partial class MainWindow : Window
 
         ExampleTextBlock.Text = example;
     }
+
+    private void PhotosList_ElementPrepared(ItemsRepeater sender, ItemsRepeaterElementPreparedEventArgs args)
+    {
+        ViewModel?.PreparePhotoCommand?.ExecuteAsync(args.Index);
+    }
 }
