@@ -70,6 +70,43 @@
         </Grid>
         <!--#endregion-->
 
+        <!--#region Items View-->
+        <Grid
+            Grid.Row="2"
+            Margin="10,0,10,10"
+            ColumnDefinitions="*,5,*">
+            <!--  Input Panel (Left Side)  -->
+            <Grid
+                Grid.Column="0"
+                BorderBrush="Gray"
+                BorderThickness="1"
+                RowDefinitions="Auto,*" />
+
+            <!--  Grid Splitter Bar  -->
+            <controls:GridSplitter
+                Grid.Column="1"
+                CursorBehavior="ChangeOnSplitterHover"
+                Opacity="0"
+                ResizeBehavior="BasedOnAlignment"
+                ResizeDirection="Columns"
+                />
+
+            <!--  Output Panel (Right Side)  -->
+            <Grid
+                Grid.Column="2"
+                BorderBrush="Gray"
+                BorderThickness="1" />
+
+
+
+        </Grid>
+
+
+
+
+
+        <!--#endregion-->
+
         <!--#region Start Settings Dialog-->
         <ContentDialog
             x:Name="StartSettingsDialog"
