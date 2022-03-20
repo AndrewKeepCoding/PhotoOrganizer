@@ -12,6 +12,7 @@
     <Grid RowDefinitions="28,Auto,*">
         <!--#region Resources-->
         <Grid.Resources>
+            <!--  HeaderedContentControl Style for general use  -->
             <Style TargetType="controls:HeaderedContentControl">
                 <Setter Property="HeaderTemplate">
                     <Setter.Value>
@@ -21,6 +22,20 @@
                     </Setter.Value>
                 </Setter>
                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            </Style>
+            <!--  HeaderedContentControl Style for PhotoViewModel  -->
+            <Style x:Key="HeaderedContentControlPhotoViewModelStyle" TargetType="controls:HeaderedContentControl">
+                <Setter Property="HeaderTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <TextBlock FontWeight="SemiBold" Text="{Binding}" />
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Orientation" Value="Vertical" />
+                <Setter Property="Margin" Value="15,0,0,0" />
             </Style>
         </Grid.Resources>
         <!--#endregion-->
@@ -103,7 +118,7 @@
                             <StackLayout Orientation="Vertical" />
                         </ItemsRepeater.Layout>
                         <DataTemplate x:DataType="viewmodels:PhotoViewModel">
-                            <Grid Height="150" ColumnDefinitions="Auto,*">
+                            <Grid Height="120" ColumnDefinitions="Auto,*">
                                 <!--  Thumbnail  -->
                                 <controls:ImageEx
                                     Grid.Column="0"
@@ -124,20 +139,20 @@
                                         FontWeight="Bold"
                                         Text="{x:Bind InputFileName, Mode=OneWay}" />
                                     <!--  Input File Path  -->
-                                    <controls:HeaderedContentControl Header="Input">
+                                    <controls:HeaderedContentControl Header="Input" Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
                                         <TextBlock Text="{x:Bind InputFilePath, Mode=OneWay}" />
                                     </controls:HeaderedContentControl>
                                     <!--  Output File Path  -->
-                                    <controls:HeaderedContentControl Header="Output">
+                                    <controls:HeaderedContentControl Header="Output" Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
                                         <TextBlock Text="{x:Bind OutputFilePath, Mode=OneWay}" />
                                     </controls:HeaderedContentControl>
                                     <StackPanel Orientation="Horizontal">
                                         <!--  Date Taken  -->
-                                        <controls:HeaderedContentControl Header="Date Taken">
+                                        <controls:HeaderedContentControl Header="Date Taken" Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
                                             <TextBlock Text="{x:Bind DateTaken, Mode=OneWay}" />
                                         </controls:HeaderedContentControl>
                                         <!--  File Size  -->
-                                        <controls:HeaderedContentControl Header="File Size">
+                                        <controls:HeaderedContentControl Header="File Size" Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
                                             <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" />
                                         </controls:HeaderedContentControl>
                                     </StackPanel>
