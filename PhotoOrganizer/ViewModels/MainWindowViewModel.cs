@@ -21,6 +21,8 @@ public partial class MainWindowViewModel
     [ObservableProperty]
     private StorageFolder? _outputFolder;
 
+    [ObservableProperty]
+    private string _outputFolderFormat = string.Empty;
 
     [ObservableProperty]
     private ObservableCollection<PhotoViewModel> _photos = new();
@@ -60,16 +62,18 @@ public partial class MainWindowViewModel
             if (cancellationToken.IsCancellationRequested is true)
                 break;
 
-            PhotoViewModel photoViewModel = new(file, _thumbnailService);
+            string outputFolderPath = OutputFolder is not null ? OutputFolder.Path : string.Empty;
+
+            PhotoViewModel photoViewModel = await new PhotoViewModelBuilder(file)
+                .WithThumbnailService()
+                .WithMetadata()
+                .WithOutputFolderPath(outputFolderPath, OutputFolderFormat)
+                .BuildAsync();
 
             photoViewModels.Add(photoViewModel);
-
-
         }
 
         Photos = new ObservableCollection<PhotoViewModel>(photoViewModels);
-
-
     }
 
     [ICommand]

@@ -103,7 +103,7 @@
                             <StackLayout Orientation="Vertical" />
                         </ItemsRepeater.Layout>
                         <DataTemplate x:DataType="viewmodels:PhotoViewModel">
-                            <Grid Height="120" ColumnDefinitions="Auto,*">
+                            <Grid Height="150" ColumnDefinitions="Auto,*">
                                 <!--  Thumbnail  -->
                                 <controls:ImageEx
                                     Grid.Column="0"
@@ -136,11 +136,11 @@
                                         <controls:HeaderedContentControl Header="Date Taken">
                                             <TextBlock Text="{x:Bind DateTaken, Mode=OneWay}" />
                                         </controls:HeaderedContentControl>
+                                        <!--  File Size  -->
+                                        <controls:HeaderedContentControl Header="File Size">
+                                            <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" />
+                                        </controls:HeaderedContentControl>
                                     </StackPanel>
-                                    <!--  File Size  -->
-                                    <controls:HeaderedContentControl Header="Input">
-                                        <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" />
-                                    </controls:HeaderedContentControl>
                                 </StackPanel>
                             </Grid>
                         </DataTemplate>

@@ -11,7 +11,7 @@ namespace PhotoOrganizer.ViewModels;
 public partial class PhotoViewModel
 {
     private readonly StorageFile _file;
-    private readonly IThumbnailService _thumbnailService;
+    private readonly IThumbnailService? _thumbnailService;
     [ObservableProperty]
     private BitmapImage? _thumbnail;
 
@@ -30,7 +30,7 @@ public partial class PhotoViewModel
     [ObservableProperty]
     private string? _outputFilePath;
 
-    public PhotoViewModel(StorageFile file, IThumbnailService thumbnailService)
+    public PhotoViewModel(StorageFile file, IThumbnailService? thumbnailService)
     {
         _file = file;
         _thumbnailService = thumbnailService;
@@ -40,7 +40,7 @@ public partial class PhotoViewModel
 
     public async Task LoadThumbnailAsync()
     {
-        if (Thumbnail is null)
+        if (Thumbnail is null && _thumbnailService is not null)
         {
             Thumbnail = await _thumbnailService.GetThumbnail(_file);
         }
