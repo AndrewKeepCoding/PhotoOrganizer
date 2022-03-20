@@ -8,13 +8,8 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 
-using WinRT;
-
 namespace PhotoOrganizer;
 
-/// <summary>
-/// An empty window that can be used on its own or navigated to within a Frame.
-/// </summary>
 public sealed partial class MainWindow : Window
 {
     public MainWindow()
@@ -30,71 +25,9 @@ public sealed partial class MainWindow : Window
         UpdateOutputFolderExample();
     }
 
-    public MainWindowViewModel? ViewModel { get; }
-
     public StorageFolder? SelectedInputFolder { get; set; }
-
     public StorageFolder? SelectedOutputFolder { get; set; }
-
-    private async void StartButton_Click(object sender, RoutedEventArgs e)
-    {
-        ContentDialogResult result = await StartSettingsDialog.ShowAsync();
-        if (result is ContentDialogResult.Primary && ViewModel is not null)
-        {
-            ViewModel.InputFolder = SelectedInputFolder;
-            ViewModel.OutputFolder = SelectedOutputFolder;
-        }
-    }
-
-    private async Task<StorageFolder?> SelectFolderAsync()
-    {
-        FolderPicker folderPicker = new();
-        folderPicker.FileTypeFilter.Add("*");
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
-        return await folderPicker.PickSingleFolderAsync();
-    }
-
-
-    private async void SelectInputFolderButton_Click(object sender, RoutedEventArgs e)
-    {
-        StorageFolder? folder = await SelectFolderAsync();
-        if (folder is not null && ViewModel is not null)
-        {
-            SelectedInputFolder = folder;
-            SelectedInputFolderTextBox.Text = SelectedInputFolder.Path;
-
-        }
-    }
-
-    private async void SelectOutputFolderButton_Click(object sender, RoutedEventArgs e)
-    {
-        StorageFolder? folder = await SelectFolderAsync();
-        if (folder is not null && ViewModel is not null)
-        {
-            SelectedOutputFolder = folder;
-            SelectedOutputFolderTextBox.Text = SelectedOutputFolder.Path;
-
-        }
-    }
-
-    private void FolderStructureCheckBox_Click(object sender, RoutedEventArgs e) => UpdateOutputFolderExample();
-
-    private void UpdateOutputFolderExample()
-    {
-        string example = @"[Output]";
-
-        if (SelectedOutputFolder?.Path.Length > 0)
-            example = SelectedOutputFolder.Path;
-
-        string dateFormat = CreateDateFolderFormat();
-        if (dateFormat.Length > 0)
-            example += DateTime.Now.ToString(dateFormat, CultureInfo.InvariantCulture);
-
-        example += @"\[Filename]";
-
-        ExampleTextBlock.Text = example;
-    }
+    public MainWindowViewModel? ViewModel { get; }
 
     private string CreateDateFolderFormat()
     {
@@ -110,5 +43,61 @@ public sealed partial class MainWindow : Window
             format += @"\\yyyy-MM-dd";
 
         return format;
+    }
+
+    private void FolderStructureCheckBox_Click(object sender, RoutedEventArgs e) => UpdateOutputFolderExample();
+
+    private async Task<StorageFolder?> SelectFolderAsync()
+    {
+        FolderPicker folderPicker = new();
+        folderPicker.FileTypeFilter.Add("*");
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
+        return await folderPicker.PickSingleFolderAsync();
+    }
+
+    private async void SelectInputFolderButton_Click(object sender, RoutedEventArgs e)
+    {
+        StorageFolder? folder = await SelectFolderAsync();
+        if (folder is not null)
+        {
+            SelectedInputFolder = folder;
+            SelectedInputFolderTextBox.Text = SelectedInputFolder.Path;
+        }
+    }
+
+    private async void SelectOutputFolderButton_Click(object sender, RoutedEventArgs e)
+    {
+        StorageFolder? folder = await SelectFolderAsync();
+        if (folder is not null)
+        {
+            SelectedOutputFolder = folder;
+            SelectedOutputFolderTextBox.Text = SelectedOutputFolder.Path;
+        }
+    }
+
+    private async void StartButton_Click(object sender, RoutedEventArgs e)
+    {
+        ContentDialogResult result = await StartSettingsDialog.ShowAsync();
+        if (result is ContentDialogResult.Primary && ViewModel is not null)
+        {
+            ViewModel.UpdateInputFolderPathCommand?.Execute(SelectedInputFolder?.Path);
+            ViewModel.UpdateOutputFolderPathCommand?.Execute(SelectedOutputFolder?.Path);
+        }
+    }
+    private void UpdateOutputFolderExample()
+    {
+        string example = @"[Output]";
+
+        if (SelectedOutputFolder?.Path.Length > 0)
+            example = SelectedOutputFolder.Path;
+
+        string dateFormat = CreateDateFolderFormat();
+        if (dateFormat.Length > 0)
+            example += DateTime.Now.ToString(dateFormat, CultureInfo.InvariantCulture);
+
+        example += @"\[Filename]";
+
+        ExampleTextBlock.Text = example;
     }
 }
