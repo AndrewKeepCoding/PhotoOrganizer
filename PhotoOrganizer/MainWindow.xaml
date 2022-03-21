@@ -299,8 +299,8 @@
 
         <!--#region Loading Screen-->
         <Grid
-            Grid.Row="0"
-            Grid.RowSpan="3"
+            Grid.Row="1"
+            Grid.RowSpan="2"
             Background="Black"
             ColumnDefinitions="*,*,*"
             Opacity="0.9"
