@@ -103,6 +103,9 @@ public partial class MainWindowViewModel
     }
 
     [ICommand]
+    private void UpdateOutputFolderFormat(string folderFormat) => OutputFolderFormat = folderFormat;
+
+    [ICommand]
     private async Task UpdateInputFolderPath(string? folderPath)
     {
         if (folderPath is null)

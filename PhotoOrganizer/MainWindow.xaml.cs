@@ -84,6 +84,8 @@ public sealed partial class MainWindow : Window
             ViewModel.UpdateInputFolderPathCommand?.Execute(SelectedInputFolder?.Path);
             ViewModel.UpdateOutputFolderPathCommand?.Execute(SelectedOutputFolder?.Path);
 
+            string folderFormat = CreateDateFolderFormat();
+            ViewModel.UpdateOutputFolderFormatCommand?.Execute(folderFormat);
 
             ViewModel.LoadPhotosCommand?.ExecuteAsync(SelectedInputFolder?.Path);
         }
