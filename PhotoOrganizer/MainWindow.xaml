@@ -6,11 +6,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:PhotoOrganizer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:PhotoOrganizer.ViewModels"
     mc:Ignorable="d">
 
     <Grid RowDefinitions="28,Auto,*">
         <!--#region Resources-->
         <Grid.Resources>
+            <!--  HeaderedContentControl Style for general use  -->
             <Style TargetType="controls:HeaderedContentControl">
                 <Setter Property="HeaderTemplate">
                     <Setter.Value>
@@ -20,6 +22,20 @@
                     </Setter.Value>
                 </Setter>
                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            </Style>
+            <!--  HeaderedContentControl Style for PhotoViewModel  -->
+            <Style x:Key="HeaderedContentControlPhotoViewModelStyle" TargetType="controls:HeaderedContentControl">
+                <Setter Property="HeaderTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <TextBlock FontWeight="SemiBold" Text="{Binding}" />
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Orientation" Value="Vertical" />
+                <Setter Property="Margin" Value="15,0,0,0" />
             </Style>
         </Grid.Resources>
         <!--#endregion-->
@@ -67,6 +83,114 @@
                 </controls:HeaderedContentControl>
             </Grid>
 
+        </Grid>
+        <!--#endregion-->
+
+        <!--#region Items View-->
+        <Grid
+            Grid.Row="2"
+            Margin="10,0,10,10"
+            ColumnDefinitions="2*,5,*">
+            <!--  Input Panel (Left Side)  -->
+            <Grid
+                Grid.Column="0"
+                BorderBrush="Gray"
+                BorderThickness="1"
+                RowDefinitions="Auto,*">
+
+                <Grid
+                    Grid.Row="0"
+                    Margin="5,0,5,0"
+                    ColumnDefinitions="Auto,*">
+                    <TextBlock
+                        Grid.Column="0"
+                        FontSize="15"
+                        FontWeight="Bold"
+                        Text="Input" />
+                    <TextBlock
+                        Grid.Column="1"
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Bottom"
+                        Visibility="{x:Bind ViewModel.HasPhotos, Mode=OneWay}">
+                        <Run Text="(" />
+                        <Run Text="{x:Bind ViewModel.LoadedFilesCount, Mode=OneWay}" />
+                        <Run Text=" / " />
+                        <Run Text="{x:Bind ViewModel.FoundFilesCount, Mode=OneWay}" />
+                        <Run Text=")" />
+                    </TextBlock>
+                </Grid>
+
+                <ScrollViewer
+                    Grid.Row="1"
+                    BorderBrush="DimGray"
+                    BorderThickness="0,1,0,0">
+
+                    <ItemsRepeater
+                        x:Name="PhotosList"
+                        ElementPrepared="PhotosList_ElementPrepared"
+                        ItemsSource="{x:Bind ViewModel.Photos, Mode=OneWay}">
+                        <ItemsRepeater.Layout>
+                            <StackLayout Orientation="Vertical" />
+                        </ItemsRepeater.Layout>
+                        <DataTemplate x:DataType="viewmodels:PhotoViewModel">
+                            <Grid Height="120" ColumnDefinitions="Auto,*">
+                                <!--  Thumbnail  -->
+                                <controls:ImageEx
+                                    Grid.Column="0"
+                                    Width="200"
+                                    PlaceholderSource="Assets\windows-icon.gif"
+                                    PlaceholderStretch="Uniform"
+                                    Source="{x:Bind Thumbnail, Mode=OneWay}" />
+                                <!--  Details  -->
+                                <StackPanel
+                                    Grid.Column="1"
+                                    Padding="10,0,0,0"
+                                    BorderBrush="DimGray"
+                                    BorderThickness="0,0,0,1"
+                                    Orientation="Vertical">
+                                    <!--  Input File Name  -->
+                                    <TextBlock
+                                        FontSize="16"
+                                        FontWeight="Bold"
+                                        Text="{x:Bind InputFileName, Mode=OneWay}" />
+                                    <!--  Input File Path  -->
+                                    <controls:HeaderedContentControl Header="Input" Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
+                                        <TextBlock Text="{x:Bind InputFilePath, Mode=OneWay}" />
+                                    </controls:HeaderedContentControl>
+                                    <!--  Output File Path  -->
+                                    <controls:HeaderedContentControl Header="Output" Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
+                                        <TextBlock Text="{x:Bind OutputFilePath, Mode=OneWay}" />
+                                    </controls:HeaderedContentControl>
+                                    <StackPanel Orientation="Horizontal">
+                                        <!--  Date Taken  -->
+                                        <controls:HeaderedContentControl Header="Date Taken" Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
+                                            <TextBlock Text="{x:Bind DateTaken, Mode=OneWay}" />
+                                        </controls:HeaderedContentControl>
+                                        <!--  File Size  -->
+                                        <controls:HeaderedContentControl Header="File Size" Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
+                                            <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" />
+                                        </controls:HeaderedContentControl>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsRepeater>
+                </ScrollViewer>
+            </Grid>
+
+            <!--  Grid Splitter Bar  -->
+            <controls:GridSplitter
+                Grid.Column="1"
+                CursorBehavior="ChangeOnSplitterHover"
+                Opacity="0"
+                ResizeBehavior="BasedOnAlignment"
+                ResizeDirection="Columns" />
+
+            <!--  Output Panel (Right Side)  -->
+            <Grid
+                Grid.Column="2"
+                BorderBrush="Gray"
+                BorderThickness="1" />
         </Grid>
         <!--#endregion-->
 
@@ -172,6 +296,54 @@
                 </controls:HeaderedContentControl>
             </StackPanel>
         </ContentDialog>
+        <!--#endregion-->
+
+        <!--#region Loading Screen-->
+        <Grid
+            Grid.Row="1"
+            Grid.RowSpan="2"
+            Background="Black"
+            ColumnDefinitions="*,*,*"
+            Opacity="0.9"
+            RowDefinitions="*,*,*"
+            Visibility="{x:Bind ViewModel.LoadPhotosCommand.IsRunning, Mode=OneWay}">
+            <StackPanel
+                Grid.Row="1"
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                Spacing="10">
+                <!--  Message  -->
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Text="Loading..." />
+                <!--  Progress Bar  -->
+                <ProgressBar
+                    x:Name="LoadingProgressBar"
+                    Height="30"
+                    Maximum="{x:Bind ViewModel.FoundFilesCount, Mode=OneWay}"
+                    Value="{x:Bind ViewModel.LoadedFilesCount, Mode=OneWay}" />
+                <!--  Counter  -->
+                <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10">
+                    <TextBlock
+                        Grid.Column="0"
+                        HorizontalAlignment="Right"
+                        Text="{x:Bind ViewModel.LoadedFilesCount, Mode=OneWay}" />
+                    <TextBlock Grid.Column="1" Text=" / " />
+                    <TextBlock
+                        Grid.Column="2"
+                        HorizontalAlignment="Left"
+                        Text="{x:Bind ViewModel.FoundFilesCount, Mode=OneWay}" />
+                </Grid>
+                <!--  Cancel Button  -->
+                <Button
+                    x:Name="CancelButton"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    Click="CancelButton_Click"
+                    Content="Cancel" />
+            </StackPanel>
+        </Grid>
         <!--#endregion-->
 
     </Grid>

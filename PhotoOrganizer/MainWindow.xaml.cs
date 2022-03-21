@@ -8,13 +8,8 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 
-using WinRT;
-
 namespace PhotoOrganizer;
 
-/// <summary>
-/// An empty window that can be used on its own or navigated to within a Frame.
-/// </summary>
 public sealed partial class MainWindow : Window
 {
     public MainWindow()
@@ -30,21 +25,27 @@ public sealed partial class MainWindow : Window
         UpdateOutputFolderExample();
     }
 
+    public StorageFolder? SelectedInputFolder { get; set; }
+    public StorageFolder? SelectedOutputFolder { get; set; }
     public MainWindowViewModel? ViewModel { get; }
 
-    public StorageFolder? SelectedInputFolder { get; set; }
-
-    public StorageFolder? SelectedOutputFolder { get; set; }
-
-    private async void StartButton_Click(object sender, RoutedEventArgs e)
+    private string CreateDateFolderFormat()
     {
-        ContentDialogResult result = await StartSettingsDialog.ShowAsync();
-        if (result is ContentDialogResult.Primary && ViewModel is not null)
-        {
-            ViewModel.InputFolder = SelectedInputFolder;
-            ViewModel.OutputFolder = SelectedOutputFolder;
-        }
+        string format = string.Empty;
+
+        if (CreateYearFolderCheckBox.IsChecked is true)
+            format += @"\\yyyy";
+        if (CreateMonthFolderCheckBox.IsChecked is true)
+            format += @"\\MM";
+        if (CreateDayFolderCheckBox.IsChecked is true)
+            format += @"\\dd";
+        if (CreateDateFolderCheckBox.IsChecked is true)
+            format += @"\\yyyy-MM-dd";
+
+        return format;
     }
+
+    private void FolderStructureCheckBox_Click(object sender, RoutedEventArgs e) => UpdateOutputFolderExample();
 
     private async Task<StorageFolder?> SelectFolderAsync()
     {
@@ -55,30 +56,40 @@ public sealed partial class MainWindow : Window
         return await folderPicker.PickSingleFolderAsync();
     }
 
-
     private async void SelectInputFolderButton_Click(object sender, RoutedEventArgs e)
     {
         StorageFolder? folder = await SelectFolderAsync();
-        if (folder is not null && ViewModel is not null)
+        if (folder is not null)
         {
             SelectedInputFolder = folder;
             SelectedInputFolderTextBox.Text = SelectedInputFolder.Path;
-
         }
     }
 
     private async void SelectOutputFolderButton_Click(object sender, RoutedEventArgs e)
     {
         StorageFolder? folder = await SelectFolderAsync();
-        if (folder is not null && ViewModel is not null)
+        if (folder is not null)
         {
             SelectedOutputFolder = folder;
             SelectedOutputFolderTextBox.Text = SelectedOutputFolder.Path;
-
         }
     }
 
-    private void FolderStructureCheckBox_Click(object sender, RoutedEventArgs e) => UpdateOutputFolderExample();
+    private async void StartButton_Click(object sender, RoutedEventArgs e)
+    {
+        ContentDialogResult result = await StartSettingsDialog.ShowAsync();
+        if (result is ContentDialogResult.Primary && ViewModel is not null)
+        {
+            ViewModel.UpdateInputFolderPathCommand?.Execute(SelectedInputFolder?.Path);
+            ViewModel.UpdateOutputFolderPathCommand?.Execute(SelectedOutputFolder?.Path);
+
+            string folderFormat = CreateDateFolderFormat();
+            ViewModel.UpdateOutputFolderFormatCommand?.Execute(folderFormat);
+
+            ViewModel.LoadPhotosCommand?.ExecuteAsync(SelectedInputFolder?.Path);
+        }
+    }
 
     private void UpdateOutputFolderExample()
     {
@@ -96,19 +107,13 @@ public sealed partial class MainWindow : Window
         ExampleTextBlock.Text = example;
     }
 
-    private string CreateDateFolderFormat()
+    private void PhotosList_ElementPrepared(ItemsRepeater sender, ItemsRepeaterElementPreparedEventArgs args)
     {
-        string format = string.Empty;
+        ViewModel?.PreparePhotoCommand?.ExecuteAsync(args.Index);
+    }
 
-        if (CreateYearFolderCheckBox.IsChecked is true)
-            format += @"\\yyyy";
-        if (CreateMonthFolderCheckBox.IsChecked is true)
-            format += @"\\MM";
-        if (CreateDayFolderCheckBox.IsChecked is true)
-            format += @"\\dd";
-        if (CreateDateFolderCheckBox.IsChecked is true)
-            format += @"\\yyyy-MM-dd";
-
-        return format;
+    private void CancelButton_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel?.LoadPhotosCommand?.Cancel();
     }
 }
