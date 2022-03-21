@@ -90,7 +90,7 @@
         <Grid
             Grid.Row="2"
             Margin="10,0,10,10"
-            ColumnDefinitions="*,5,*">
+            ColumnDefinitions="2*,5,*">
             <!--  Input Panel (Left Side)  -->
             <Grid
                 Grid.Column="0"
