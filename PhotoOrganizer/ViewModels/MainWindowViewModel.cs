@@ -14,16 +14,15 @@ namespace PhotoOrganizer.ViewModels;
 [ObservableObject]
 public partial class MainWindowViewModel
 {
-    private readonly IThumbnailService _thumbnailService;
     [ObservableProperty]
-    private StorageFolder? _inputFolder;
+    private int _foundFilesCount;
 
     [ObservableProperty]
     private bool _hasPhotos;
 
     [ObservableProperty]
-    private int _foundFilesCount;
-
+    private StorageFolder? _inputFolder;
+    
     [ObservableProperty]
     private int _loadedFilesCount;
 
@@ -36,9 +35,8 @@ public partial class MainWindowViewModel
     [ObservableProperty]
     private ObservableCollection<PhotoViewModel> _photos = new();
 
-    public MainWindowViewModel(IThumbnailService thumbnailService)
+    public MainWindowViewModel()
     {
-        _thumbnailService = thumbnailService;
     }
 
     [ICommand]
@@ -52,7 +50,7 @@ public partial class MainWindowViewModel
             return;
 
         Photos.Clear();
-
+        HasPhotos = false;
 
         List<string> fileTypeFilter = new();
         fileTypeFilter.Add(".jpg");
@@ -63,7 +61,6 @@ public partial class MainWindowViewModel
         IReadOnlyList<StorageFile>? files = await results.GetFilesAsync();
         if (files is null)
             return;
-
 
         List<PhotoViewModel> photoViewModels = new();
         IProgress<int> progress = new Progress<int>(x => LoadedFilesCount = x);
@@ -103,9 +100,6 @@ public partial class MainWindowViewModel
     }
 
     [ICommand]
-    private void UpdateOutputFolderFormat(string folderFormat) => OutputFolderFormat = folderFormat;
-
-    [ICommand]
     private async Task UpdateInputFolderPath(string? folderPath)
     {
         if (folderPath is null)
@@ -117,6 +111,9 @@ public partial class MainWindowViewModel
 
         InputFolder = folder;
     }
+
+    [ICommand]
+    private void UpdateOutputFolderFormat(string folderFormat) => OutputFolderFormat = folderFormat;
 
     [ICommand]
     private async Task UpdateOutputFolderPath(string? folderPath)

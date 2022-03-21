@@ -12,6 +12,7 @@ public partial class PhotoViewModel
 {
     private readonly StorageFile _file;
     private readonly IThumbnailService? _thumbnailService;
+
     [ObservableProperty]
     private BitmapImage? _thumbnail;
 
