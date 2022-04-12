@@ -44,7 +44,6 @@
         <StackPanel
             x:Name="TitleBar"
             Grid.Row="0"
-            Margin="0,0,120,0"
             Background="{ThemeResource AppBarBackgroundThemeBrush}"
             Orientation="Horizontal">
             <Image Source="Assets/windows-icon.gif" />
