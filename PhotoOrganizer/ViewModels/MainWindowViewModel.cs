@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PhotoOrganizer.Services;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -37,17 +37,29 @@ public partial class MainWindowViewModel
 
     public MainWindowViewModel()
     {
+        Logger = Log.ForContext<MainWindowViewModel>();
+        Logger.Information("Initialized.");
     }
+
+    private ILogger Logger { get; }
 
     [ICommand]
     private async Task LoadPhotosAsync(string? inputFolderPath, CancellationToken cancellationToken)
     {
+        Logger.Verbose("LoadPhotosAsync [Folder:{Folder}]", inputFolderPath);
+
         if (LoadPhotosCommand.IsRunning || inputFolderPath is null)
+        {
+            Logger.Error("LoadPhotosAsync failed. [Folder:{Folder}][Running:{Running}]", inputFolderPath, LoadPhotosCommand.IsRunning);
             return;
+        }
 
         StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(inputFolderPath);
         if (folder is null)
+        {
+            Logger.Error("LoadPhotosAsync failed. [Folder:{Folder}] is not valid.", inputFolderPath);
             return;
+        }
 
         Photos.Clear();
         HasPhotos = false;
@@ -60,17 +72,24 @@ public partial class MainWindowViewModel
         StorageFileQueryResult? results = folder.CreateFileQueryWithOptions(queryOptions);
         IReadOnlyList<StorageFile>? files = await results.GetFilesAsync();
         if (files is null)
+        {
+            Logger.Error("LoadPhotosAsync GetFilesAsync failed.");
             return;
+        }
 
-        List<PhotoViewModel> photoViewModels = new();
         IProgress<int> progress = new Progress<int>(x => LoadedFilesCount = x);
         FoundFilesCount = files.Count;
         int reportingInterval = Math.Max(files.Count / 100, 1);
+        Photos = new ObservableCollection<PhotoViewModel>();
 
         foreach (StorageFile file in files)
         {
+            Logger.Information("LoadPhotosAsync Loading [File:{File}]", file.Path);
             if (cancellationToken.IsCancellationRequested is true)
+            {
+                Logger.Warning("LoadPhotosAsync cancellation requested.");
                 break;
+            }
 
             string outputFolderPath = OutputFolder is not null ? OutputFolder.Path : string.Empty;
 
@@ -80,21 +99,24 @@ public partial class MainWindowViewModel
                 .WithOutputFolderPath(outputFolderPath, OutputFolderFormat)
                 .BuildAsync();
 
-            photoViewModels.Add(photoViewModel);
+            Photos.Add(photoViewModel);
 
-            if ((photoViewModels.Count % reportingInterval) == 0)
+            if ((Photos.Count % reportingInterval) == 0)
             {
-                progress.Report(photoViewModels.Count);
+                progress.Report(Photos.Count);
             }
+
+            Logger.Information("LoadPhotosAsync Loaded [File:{File}]", file.Path);
         }
-        LoadedFilesCount = photoViewModels.Count;
-        Photos = new ObservableCollection<PhotoViewModel>(photoViewModels);
+        LoadedFilesCount = Photos.Count;
+        
         HasPhotos = Photos.Count > 0;
     }
 
     [ICommand]
     private Task PreparePhotoAsync(int photoIndex)
     {
+        Logger.Verbose("PreparePhotoAsync [index:{PhotoIndex}]", photoIndex);
         PhotoViewModel photoViewModel = Photos[photoIndex];
         return photoViewModel.LoadThumbnailAsync();
     }

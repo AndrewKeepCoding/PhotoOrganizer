@@ -5,6 +5,7 @@
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:PhotoOrganizer"
+    xmlns:logviewmodels="using:Serilog.Sinks.WinUi3.LogViewModels"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:PhotoOrganizer.ViewModels"
     mc:Ignorable="d">
@@ -59,7 +60,7 @@
         <Grid
             Grid.Row="1"
             Margin="10"
-            ColumnDefinitions="Auto,*"
+            ColumnDefinitions="Auto,*,Auto"
             ColumnSpacing="5"
             RowSpacing="5">
             <!--  Start Button  -->
@@ -81,6 +82,15 @@
                     <TextBox IsReadOnly="True" Text="{x:Bind ViewModel.OutputFolder.Path, Mode=OneWay}" />
                 </controls:HeaderedContentControl>
             </Grid>
+
+            <!--  LogViewer Button  -->
+            <Button
+                x:Name="LogViewerButton"
+                Grid.Column="2"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Click="LogViewerButton_Click"
+                Content="Logs" />
 
         </Grid>
         <!--#endregion-->
@@ -297,20 +307,24 @@
         </ContentDialog>
         <!--#endregion-->
 
-        <!--#region Loading Screen-->
+        <!--#region Info Screen-->
         <Grid
+            x:Name="InfoScreen"
             Grid.Row="1"
             Grid.RowSpan="2"
+            Margin="10"
             Background="Black"
-            ColumnDefinitions="*,*,*"
+            ColumnDefinitions="*,2*,*"
             Opacity="0.9"
-            RowDefinitions="*,*,*"
-            Visibility="{x:Bind ViewModel.LoadPhotosCommand.IsRunning, Mode=OneWay}">
+            RowDefinitions="Auto,*,Auto"
+            Visibility="Collapsed">
             <StackPanel
-                Grid.Row="1"
+                x:Name="ProgessInfo"
+                Grid.Row="0"
                 Grid.Column="1"
                 VerticalAlignment="Center"
-                Spacing="10">
+                Spacing="10"
+                Visibility="Collapsed">
                 <!--  Message  -->
                 <TextBlock
                     HorizontalAlignment="Center"
@@ -342,6 +356,157 @@
                     Click="CancelButton_Click"
                     Content="Cancel" />
             </StackPanel>
+
+
+            <!--  Log Viewer  -->
+            <Grid
+                Grid.Row="1"
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                Margin="10"
+                Background="Transparent"
+                RowDefinitions="Auto,*">
+
+                <!--  Log Viewer Resources  -->
+                <Grid.Resources>
+                    <!--  Column Widths  -->
+                    <GridLength x:Key="NumberColumnWidth">80</GridLength>
+                    <GridLength x:Key="TimestampColumnWidth">200</GridLength>
+                    <GridLength x:Key="LevelColumnWidth">80</GridLength>
+                    <GridLength x:Key="SourceContextColumnWidth">190</GridLength>
+                    <!--  Styles  -->
+                    <Style x:Key="ColumnHeaderBorderStyle" TargetType="Border">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Padding" Value="0,0,10,0" />
+                    </Style>
+                    <Style x:Key="ColumnHeaderTextBlockStyle" TargetType="TextBlock">
+                        <Setter Property="FontWeight" Value="Bold" />
+                    </Style>
+                    <Style x:Key="LogElementTextBlockStyle" TargetType="TextBlock">
+                        <Setter Property="Padding" Value="0,0,10,0" />
+                    </Style>
+                </Grid.Resources>
+
+                <!--  Column Headers  -->
+                <Grid Grid.Row="0">
+
+                    <Grid.Resources>
+                        <Style BasedOn="{StaticResource ColumnHeaderBorderStyle}" TargetType="Border" />
+                        <Style BasedOn="{StaticResource ColumnHeaderTextBlockStyle}" TargetType="TextBlock" />
+                    </Grid.Resources>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="{StaticResource NumberColumnWidth}" />
+                        <ColumnDefinition Width="{StaticResource TimestampColumnWidth}" />
+                        <ColumnDefinition Width="{StaticResource LevelColumnWidth}" />
+                        <ColumnDefinition Width="{StaticResource SourceContextColumnWidth}" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!--  No Column Header  -->
+                    <Border Grid.Column="0">
+                        <TextBlock Text="No" />
+                    </Border>
+                    <!--  Timestamp Column Header  -->
+                    <Border Grid.Column="1">
+                        <TextBlock Text="Timestamp" />
+                    </Border>
+                    <!--  Level Column Header  -->
+                    <Border Grid.Column="2">
+                        <TextBlock Text="Level" />
+                    </Border>
+                    <!--  SourceContext Column Header  -->
+                    <Border Grid.Column="3">
+                        <TextBlock Text="Source Context" />
+                    </Border>
+                    <!--  Message Column Header  -->
+                    <Border Grid.Column="4">
+                        <TextBlock Text="Message" />
+                    </Border>
+
+                </Grid>
+
+                <!--  Log Viewer ItemsRepeater  -->
+                <ScrollViewer x:Name="LogScrollViewer" Grid.Row="1">
+                    <ItemsRepeater x:Name="LogItemsRepeater">
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="logviewmodels:EmojiLogViewModel">
+                                <Grid>
+
+                                    <Grid.Resources>
+                                        <Style BasedOn="{StaticResource LogElementTextBlockStyle}" TargetType="TextBlock" />
+                                    </Grid.Resources>
+
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="{StaticResource NumberColumnWidth}" />
+                                        <ColumnDefinition Width="{StaticResource TimestampColumnWidth}" />
+                                        <ColumnDefinition Width="{StaticResource LevelColumnWidth}" />
+                                        <ColumnDefinition Width="{StaticResource SourceContextColumnWidth}" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!--  No Element  -->
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        HorizontalAlignment="Right"
+                                        Text="{x:Bind Id}" />
+                                    <!--  Timestamp Element  -->
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="{x:Bind Timestamp.Foreground}"
+                                        HorizontalTextAlignment="Left"
+                                        Text="{x:Bind Timestamp.Text}" />
+                                    <!--  Level Elements  -->
+                                    <Grid Grid.Column="2" ColumnDefinitions="Auto,Auto">
+                                        <!--  Emoji  -->
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            HorizontalTextAlignment="Center"
+                                            Text="{x:Bind Emoji}" />
+                                        <!--  Level  -->
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Foreground="{x:Bind Level.Foreground}"
+                                            HorizontalTextAlignment="Center"
+                                            Text="{x:Bind Level.Text}" />
+                                    </Grid>
+                                    <!--  Source Context Element  -->
+                                    <TextBlock
+                                        Grid.Column="3"
+                                        Foreground="{x:Bind SourceContext.Foreground}"
+                                        Text="{x:Bind SourceContext.Text}" />
+                                    <!--  Message Elements  -->
+                                    <Grid Grid.Column="4" ColumnDefinitions="Auto,Auto">
+                                        <!--  Message  -->
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Foreground="{x:Bind Message.Foreground}"
+                                            Text="{x:Bind Message.Text}" />
+                                        <!--  Exception  -->
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Foreground="{x:Bind Exception.Foreground}"
+                                            Text="{x:Bind Exception.Text}"
+                                            Visibility="{x:Bind ExceptionVisibility}" />
+                                    </Grid>
+
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </ScrollViewer>
+
+            </Grid>
+
+            <!--  Close Button  -->
+            <Button
+                x:Name="CloseInfoSecreenButton"
+                Grid.Row="2"
+                Grid.Column="1"
+                HorizontalAlignment="Center"
+                Click="CloseInfoSecreenButton_Click"
+                Content="Close" />
+
         </Grid>
         <!--#endregion-->
 

@@ -1,7 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using PhotoOrganizer.Utilities;
 using PhotoOrganizer.ViewModels;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.WinUi3;
+using Serilog.Sinks.WinUi3.LogViewModels;
+using Serilog.Templates;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -12,9 +20,14 @@ namespace PhotoOrganizer;
 
 public sealed partial class MainWindow : Window
 {
+    private ItemsRepeaterLogBroker? _logBroker;
+
     public MainWindow()
     {
         this.InitializeComponent();
+
+        ConfigureLogger();
+        Logger = Log.ForContext<MainWindow>();
 
         Title = "Photo Organizer";
         ExtendsContentIntoTitleBar = true;
@@ -23,11 +36,66 @@ public sealed partial class MainWindow : Window
         ViewModel = Ioc.Default.GetService<MainWindowViewModel>();
 
         UpdateOutputFolderExample();
+
+        Logger.Information("Initialized.");
     }
 
     public StorageFolder? SelectedInputFolder { get; set; }
     public StorageFolder? SelectedOutputFolder { get; set; }
     public MainWindowViewModel? ViewModel { get; }
+
+    private ILogger Logger { get; }
+
+    private void CancelButton_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel?.LoadPhotosCommand?.Cancel();
+    }
+
+    private void CloseInfoSecreenButton_Click(object sender, RoutedEventArgs e)
+    {
+        InfoScreen.Visibility = Visibility.Collapsed;
+    }
+
+    private void ConfigureLogger()
+    {
+        App.Current.Resources.TryGetValue("DefaultTextForegroundThemeBrush", out object defaultTextForegroundThemeBrush);
+
+        _logBroker = new ItemsRepeaterLogBroker(
+            LogItemsRepeater,
+            LogScrollViewer,
+            new EmojiLogViewModelBuilder((defaultTextForegroundThemeBrush as SolidColorBrush)?.Color)
+
+                .SetTimestampFormat(new ExpressionTemplate("{@t:yyyy-MM-dd HH:mm:ss.fff}"))
+
+                .SetLevelsFormat(new ExpressionTemplate("{@l:u3}"))
+                .SetLevelForeground(LogEventLevel.Verbose, Colors.Gray)
+                .SetLevelForeground(LogEventLevel.Debug, Colors.Gray)
+                .SetLevelForeground(LogEventLevel.Information, Colors.White)
+                .SetLevelForeground(LogEventLevel.Warning, Colors.Yellow)
+                .SetLevelForeground(LogEventLevel.Error, Colors.Red)
+                .SetLevelForeground(LogEventLevel.Fatal, Colors.HotPink)
+
+                .SetSourceContextFormat(new ExpressionTemplate("{Substring(SourceContext, LastIndexOf(SourceContext, '.') + 1)}"))
+
+                .SetMessageFormat(new ExpressionTemplate("{@m}"))
+                .SetMessageForeground(LogEventLevel.Verbose, Colors.Gray)
+                .SetMessageForeground(LogEventLevel.Debug, Colors.Gray)
+                .SetMessageForeground(LogEventLevel.Information, Colors.White)
+                .SetMessageForeground(LogEventLevel.Warning, Colors.Yellow)
+                .SetMessageForeground(LogEventLevel.Error, Colors.Red)
+                .SetMessageForeground(LogEventLevel.Fatal, Colors.HotPink)
+
+                .SetExceptionFormat(new ExpressionTemplate("{@x}"))
+                .SetExceptionForeground(Colors.HotPink)
+            );
+
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.WinUi3Control(_logBroker)
+            .MinimumLevel.Verbose()
+            .CreateLogger();
+
+        _logBroker.IsAutoScrollOn = true;
+    }
 
     private string CreateDateFolderFormat()
     {
@@ -46,6 +114,16 @@ public sealed partial class MainWindow : Window
     }
 
     private void FolderStructureCheckBox_Click(object sender, RoutedEventArgs e) => UpdateOutputFolderExample();
+
+    private void LogViewerButton_Click(object sender, RoutedEventArgs e)
+    {
+        InfoScreen.Visibility = (InfoScreen.Visibility is Visibility.Collapsed) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void PhotosList_ElementPrepared(ItemsRepeater sender, ItemsRepeaterElementPreparedEventArgs args)
+    {
+        ViewModel?.PreparePhotoCommand?.ExecuteAsync(args.Index);
+    }
 
     private async Task<StorageFolder?> SelectFolderAsync()
     {
@@ -87,7 +165,13 @@ public sealed partial class MainWindow : Window
             string folderFormat = CreateDateFolderFormat();
             ViewModel.UpdateOutputFolderFormatCommand?.Execute(folderFormat);
 
-            ViewModel.LoadPhotosCommand?.ExecuteAsync(SelectedInputFolder?.Path);
+            ProgessInfo.Visibility = Visibility.Visible;
+            InfoScreen.Visibility = Visibility.Visible;
+
+            await ViewModel.LoadPhotosCommand.ExecuteAsync(SelectedInputFolder?.Path);
+
+            ProgessInfo.Visibility = Visibility.Collapsed;
+            InfoScreen.Visibility = Visibility.Collapsed;
         }
     }
 
@@ -105,15 +189,5 @@ public sealed partial class MainWindow : Window
         example += @"\[Filename]";
 
         ExampleTextBlock.Text = example;
-    }
-
-    private void PhotosList_ElementPrepared(ItemsRepeater sender, ItemsRepeaterElementPreparedEventArgs args)
-    {
-        ViewModel?.PreparePhotoCommand?.ExecuteAsync(args.Index);
-    }
-
-    private void CancelButton_Click(object sender, RoutedEventArgs e)
-    {
-        ViewModel?.LoadPhotosCommand?.Cancel();
     }
 }
