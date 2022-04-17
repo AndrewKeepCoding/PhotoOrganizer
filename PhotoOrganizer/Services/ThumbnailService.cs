@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Serilog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +17,10 @@ public class ThumbnailService : IThumbnailService
     public ThumbnailService(IMemoryCache memoryCache)
     {
         _memoryCache = memoryCache;
+        Logger = Log.ForContext<ThumbnailService>();
     }
+
+    private ILogger Logger { get; }
 
     public async Task<BitmapImage?> GetThumbnail(StorageFile file)
     {
@@ -26,6 +30,7 @@ public class ThumbnailService : IThumbnailService
         {
             if (_memoryCache.TryGetValue(file.Path, out thumbnail) is true)
             {
+                Logger.Verbose("GetThumbnail Loaded from cache. [File:{File}]", file.Path);
                 return thumbnail;
             }
 
@@ -33,6 +38,8 @@ public class ThumbnailService : IThumbnailService
             thumbnail = new();
             await thumbnail.SetSourceAsync(source);
             _memoryCache.Set(file.Path, thumbnail);
+
+            Logger.Verbose("GetThumbnail Loaded from storage. [File:{File}]", file.Path);
         }
         finally
         {
