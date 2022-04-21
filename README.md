@@ -1,7 +1,7 @@
-# Photo Organizer
+# 📷 Photo Organizer
 This is a work in progress project. 
 
-## YouTube
+## 🎬 YouTube
 - [Photo Organizer Playlist](https://youtube.com/playlist?list=PLWyJQIhN3vyO2_kTY43wJGRmQ-4UMtceo)
 
 - [Part 1: ContentDialog | FolderPicker | GitHub Repo | Community Toolkit MVVM](https://youtu.be/e2YEzcuKEMU)
@@ -12,7 +12,7 @@ This is a work in progress project.
 - [Part 6: GitHub Issue Fix Branch Pull Request Merge](https://youtu.be/zXkYxG-a2fQ)
 - [Part 7: Logging with Serilog.Sinks.WinUi3](https://youtu.be/P44vT1B9McU)
 
-## Upcoming / Backlogs (random order)
+## 🔥 Upcoming / Backlogs (random order)
 - File Copying (Organizing)
 - Error Handling
 - Unit Testing
@@ -25,7 +25,7 @@ This is a work in progress project.
 - Processed (Organized) Photo Data Management (SQLite?)
 - Microsoft Store?
 
-## NuGet Packages
+## 🎁 NuGet Packages
 - [Community.Toolkit](https://github.com/CommunityToolkit/WindowsCommunityToolkit)
 - [Humanizer](https://github.com/Humanizr/Humanizer)
 - [Metadata Extractor](https://github.com/drewnoakes/metadata-extractor)
