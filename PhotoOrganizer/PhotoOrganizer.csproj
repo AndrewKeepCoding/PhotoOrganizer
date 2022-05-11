@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Platforms>AnyCPU;x64</Platforms>
+    <RootNamespace>PhotoOrganizings</RootNamespace>
   </PropertyGroup>
 
 </Project>
