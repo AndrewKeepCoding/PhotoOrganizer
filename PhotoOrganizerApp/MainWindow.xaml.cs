@@ -1,6 +1,6 @@
 using Microsoft.UI.Xaml;
 
-namespace PhotoOrganizerApp;
+namespace PhotoOrganizings;
 
 public sealed partial class MainWindow : Window
 {
@@ -8,4 +8,8 @@ public sealed partial class MainWindow : Window
     {
         InitializeComponent();
     }
+
+    public void SetBody(UIElement uiElement) => Body.Content = uiElement;
+
+    public UIElement GetBody() => Body;
 }

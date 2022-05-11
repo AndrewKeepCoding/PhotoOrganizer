@@ -1,0 +1,306 @@
+<Page
+    x:Class="PhotoOrganizings.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:converters="using:PhotoOrganizings.Converters"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:PhotoOrganizings.ViewModels"
+    xmlns:views="using:PhotoOrganizings.Views"
+    Loaded="Page_Loaded"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <Style x:Key="Header" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource MediumFontSize}" />
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="FontSize" Value="{StaticResource MediumFontSize}" />
+        </Style>
+        <!--  HeaderedContentControl Style for PhotoViewModel  -->
+        <Style x:Key="HeaderedContentControlPhotoViewModelStyle" TargetType="controls:HeaderedContentControl">
+            <Setter Property="HeaderTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock FontWeight="SemiBold" Text="{Binding}" />
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Orientation" Value="Vertical" />
+            <Setter Property="Margin" Value="15,0,0,0" />
+        </Style>
+        <converters:NullableBooleanToBooleanConverter x:Key="IsCheckedToDisabledConverter" IsInversed="True" />
+        <converters:NullableBooleanToBooleanConverter x:Key="IsCheckedToEnabledConverter" IsInversed="False" />
+        <converters:NullableBooleanToBooleanConverter x:Key="IsCheckedToNotReadOlnlyConverter" IsInversed="True" />
+    </Page.Resources>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" RowDefinitions="Auto,*">
+        <!--  Operations  -->
+        <Grid
+            Grid.Row="0"
+            BorderBrush="{ThemeResource ApplicationForegroundThemeBrush}"
+            BorderThickness="0,0,0,1"
+            ColumnDefinitions="Auto,*,Auto">
+            <!--  Start  -->
+            <Button
+                x:Uid="StartButton"
+                Grid.Column="0"
+                Width="100"
+                Margin="3"
+                VerticalAlignment="Stretch"
+                Command="{x:Bind ViewModel.StartOrganizingCommand}"
+                Style="{ThemeResource AccentButtonStyle}" />
+
+            <CommandBar Grid.Column="1" DefaultLabelPosition="Right">
+                <!--  ProgressBar  -->
+                <CommandBar.Content>
+                    <ProgressBar x:Name="ProgressBar" Visibility="Collapsed" />
+                </CommandBar.Content>
+
+                <CommandBar.PrimaryCommands>
+                    <!--  Simulation Mode  -->
+                    <AppBarToggleButton
+                        x:Uid="SimulationModeAppBarToggleButton"
+                        Icon="Preview"
+                        IsChecked="{x:Bind ViewModel.IsSimulationMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <!--  Output Structure  -->
+                    <AppBarButton
+                        x:Uid="OutputStructureAppBarButton"
+                        AllowFocusOnInteraction="True"
+                        Icon="MoveToFolder">
+                        <AppBarButton.Flyout>
+                            <Flyout>
+                                <StackPanel MinWidth="{x:Bind OutputStructureSampleTextBox.MinWidth}" Orientation="Vertical">
+                                    <StackPanel.Resources>
+                                        <Style TargetType="CheckBox">
+                                            <Setter Property="RenderTransform">
+                                                <Setter.Value>
+                                                    <CompositeTransform ScaleX="0.9" ScaleY="0.9" />
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Setter Property="MaxWidth" Value="30" />
+                                        </Style>
+                                    </StackPanel.Resources>
+                                    <CheckBox
+                                        x:Name="YearFolderCheckBox"
+                                        x:Uid="YearFolderCheckBox"
+                                        Click="OutputStructureCheckBox_Click"
+                                        IsChecked="True"
+                                        IsEnabled="{x:Bind CustomOutputStructureCheckBox.IsChecked, Converter={StaticResource IsCheckedToDisabledConverter}, Mode=OneWay}" />
+                                    <CheckBox
+                                        x:Name="MonthFolderCheckBox"
+                                        x:Uid="MonthFolderCheckBox"
+                                        Click="OutputStructureCheckBox_Click"
+                                        IsChecked="True"
+                                        IsEnabled="{x:Bind CustomOutputStructureCheckBox.IsChecked, Converter={StaticResource IsCheckedToDisabledConverter}, Mode=OneWay}" />
+                                    <CheckBox
+                                        x:Name="DayFolderCheckBox"
+                                        x:Uid="DayFolderCheckBox"
+                                        Click="OutputStructureCheckBox_Click"
+                                        IsChecked="True"
+                                        IsEnabled="{x:Bind CustomOutputStructureCheckBox.IsChecked, Converter={StaticResource IsCheckedToDisabledConverter}, Mode=OneWay}" />
+                                    <CheckBox
+                                        x:Name="DateFolderCheckBox"
+                                        x:Uid="DateFolderCheckBox"
+                                        Click="OutputStructureCheckBox_Click"
+                                        IsChecked="True"
+                                        IsEnabled="{x:Bind CustomOutputStructureCheckBox.IsChecked, Converter={StaticResource IsCheckedToDisabledConverter}, Mode=OneWay}" />
+                                    <CheckBox
+                                        x:Name="CustomOutputStructureCheckBox"
+                                        x:Uid="CustomOutputStructureCheckBox"
+                                        Click="OutputStructureCheckBox_Click"
+                                        IsChecked="False" />
+                                    <Grid
+                                        ColumnDefinitions="*,Auto"
+                                        ColumnSpacing="10"
+                                        RowDefinitions="Auto,Auto">
+                                        <TextBox
+                                            x:Name="OutputStructureTextBox"
+                                            Grid.Row="0"
+                                            Grid.Column="0"
+                                            IsReadOnly="{x:Bind CustomOutputStructureCheckBox.IsChecked, Converter={StaticResource IsCheckedToNotReadOlnlyConverter}, Mode=OneWay}"
+                                            IsSpellCheckEnabled="False"
+                                            Text="{x:Bind ViewModel.OutputStructureFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            TextChanged="OutputStructureTextBox_TextChanged" />
+                                        <Button
+                                            x:Name="DefaultOutputStructureButton"
+                                            x:Uid="DefaultOutputStructureButton"
+                                            Grid.Row="0"
+                                            Grid.Column="1"
+                                            Click="DefaultOutputStructureButton_Click"
+                                            IsEnabled="{x:Bind CustomOutputStructureCheckBox.IsChecked, Converter={StaticResource IsCheckedToEnabledConverter}, Mode=OneWay}" />
+                                        <TextBlock
+                                            x:Name="OutputStructureErrorMessageTextBox"
+                                            x:Uid="OutputStructureErrorMessageTextBox"
+                                            Grid.Row="1"
+                                            Grid.Column="0"
+                                            Grid.ColumnSpan="2"
+                                            Foreground="Red"
+                                            Visibility="Collapsed" />
+                                    </Grid>
+                                </StackPanel>
+                            </Flyout>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
+                    <!--  Output Structure Sample  -->
+                    <AppBarElementContainer VerticalAlignment="Center" VerticalContentAlignment="Center">
+                        <TextBlock
+                            x:Name="OutputStructureSampleTextBox"
+                            MinWidth="400"
+                            VerticalAlignment="Center"
+                            FontSize="12" />
+                    </AppBarElementContainer>
+                    <!--  Logs  -->
+                    <AppBarButton
+                        x:Uid="LogsAppBarButton"
+                        Click="LogsButton_Click"
+                        Icon="List" />
+                    <!--  Settings  -->
+                    <AppBarButton
+                        x:Uid="SettingsAppBarButton"
+                        Click="SettingsButton_Click"
+                        Icon="Setting" />
+                </CommandBar.PrimaryCommands>
+            </CommandBar>
+        </Grid>
+
+        <!--  Input/Output  -->
+        <Grid Grid.Row="1" ColumnDefinitions="2*,2,*">
+            <!--  Input (Left Side)  -->
+            <Grid Grid.Column="0" RowDefinitions="Auto,*">
+                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                    <HyperlinkButton
+                        x:Uid="InputFolderButton"
+                        Grid.Column="0"
+                        Margin="0"
+                        Click="InputFolderHyperlinkButton_Click" />
+                    <TextBlock
+                        x:Name="InputFolderTextBlock"
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        Text="{x:Bind ViewModel.InputFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock
+                        Grid.Column="2"
+                        Margin="0,0,5,0"
+                        VerticalAlignment="Center">
+                        <Run Text="Items:" />
+                        <Run Text="{x:Bind ViewModel.PhotosCollectionView.Count, Mode=OneWay}" />
+                    </TextBlock>
+                </Grid>
+                <ScrollViewer Grid.Row="1">
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.PhotosCollectionView, Mode=OneWay}">
+                        <ItemsRepeater.Layout>
+                            <StackLayout Orientation="Vertical" />
+                        </ItemsRepeater.Layout>
+
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="ElementPrepared">
+                                <core:InvokeCommandAction Command="{x:Bind ViewModel.ItemsRepeaterElementPreparedEventCommand}" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+
+                        <DataTemplate x:DataType="viewmodels:PhotoTaskViewModel">
+                            <Grid
+                                Height="120"
+                                BorderBrush="{ThemeResource ApplicationForegroundThemeBrush}"
+                                BorderThickness="0,0,0,1"
+                                ColumnDefinitions="Auto,*">
+                                <!--  Thumbnail  -->
+                                <controls:ImageEx
+                                    Grid.Column="0"
+                                    Width="200"
+                                    HorizontalAlignment="Left"
+                                    HorizontalContentAlignment="Left"
+                                    PlaceholderSource="Assets\app-icon.gif"
+                                    PlaceholderStretch="Uniform"
+                                    Source="{x:Bind Thumbnail, Mode=OneWay}" />
+                                <!--  Details  -->
+                                <StackPanel
+                                    Grid.Column="1"
+                                    Padding="10,0,0,0"
+                                    Orientation="Vertical">
+                                    <!--  Input File Name  -->
+                                    <TextBlock
+                                        FontSize="16"
+                                        FontWeight="Bold"
+                                        Text="{x:Bind InputFileName, Mode=OneWay}" />
+                                    <!--  Input File Path  -->
+                                    <controls:HeaderedContentControl Header="Input" Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
+                                        <TextBlock Text="{x:Bind InputFilePath, Mode=OneWay}" />
+                                    </controls:HeaderedContentControl>
+                                    <!--  Output File Path  -->
+                                    <controls:HeaderedContentControl Header="Output" Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
+                                        <TextBlock Text="{x:Bind OutputFilePath, Mode=OneWay}" />
+                                    </controls:HeaderedContentControl>
+                                    <StackPanel Orientation="Horizontal">
+                                        <!--  Date Taken  -->
+                                        <controls:HeaderedContentControl Header="Date Taken" Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
+                                            <TextBlock Text="{x:Bind DateTaken, Mode=OneWay}" />
+                                        </controls:HeaderedContentControl>
+                                        <!--  File Size  -->
+                                        <controls:HeaderedContentControl Header="File Size" Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
+                                            <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" />
+                                        </controls:HeaderedContentControl>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+
+                    </ItemsRepeater>
+                </ScrollViewer>
+            </Grid>
+            <!--  Grid Splitter Bar  -->
+            <controls:GridSplitter
+                Grid.Column="1"
+                Background="{ThemeResource ApplicationForegroundThemeBrush}"
+                CursorBehavior="ChangeOnSplitterHover"
+                Opacity="0.5"
+                ResizeBehavior="BasedOnAlignment"
+                ResizeDirection="Columns" />
+            <!--  Output (Right Side)  -->
+            <Grid Grid.Column="2" RowDefinitions="Auto,*">
+                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                    <HyperlinkButton
+                        x:Uid="OutputFolderButton"
+                        Grid.Column="0"
+                        Click="OutputFolderHyperlinkButton_Click" />
+                    <TextBlock
+                        x:Name="OutputFolderTextBlock"
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        Text="{x:Bind ViewModel.OutputFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock
+                        Grid.Column="2"
+                        Margin="0,0,5,0"
+                        VerticalAlignment="Center">
+                        <Run Text="Items:" />
+                        <Run Text="{x:Bind ViewModel.PhotosCollectionView.Count, Mode=OneWay}" />
+                    </TextBlock>
+                </Grid>
+                <ScrollViewer Grid.Row="1">
+                    <ItemsRepeater>
+
+                    </ItemsRepeater>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+
+        <!--  Settings Page  -->
+        <views:LogsPage
+            x:Name="LogsPage"
+            Grid.RowSpan="2"
+            Visibility="Collapsed" />
+
+        <!--  Settings Page  -->
+        <views:SettingsPage
+            x:Name="SettingsPage"
+            Grid.RowSpan="2"
+            Visibility="Collapsed" />
+    </Grid>
+
+</Page>
