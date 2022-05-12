@@ -239,11 +239,17 @@
                                     </controls:HeaderedContentControl>
                                     <StackPanel Orientation="Horizontal">
                                         <!--  Date Taken  -->
-                                        <controls:HeaderedContentControl Header="Date Taken" Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
+                                        <controls:HeaderedContentControl
+                                            Width="100"
+                                            Header="Date Taken"
+                                            Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
                                             <TextBlock Text="{x:Bind DateTaken, Mode=OneWay}" />
                                         </controls:HeaderedContentControl>
                                         <!--  File Size  -->
-                                        <controls:HeaderedContentControl Header="File Size" Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
+                                        <controls:HeaderedContentControl
+                                            Width="100"
+                                            Header="File Size"
+                                            Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
                                             <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" />
                                         </controls:HeaderedContentControl>
                                     </StackPanel>
