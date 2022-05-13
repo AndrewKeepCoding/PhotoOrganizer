@@ -42,6 +42,25 @@
             ErrorColor="Red"
             RunningColor="Gray"
             SuccessedColor="LightGreen" />
+
+        <DataTemplate x:Key="RootFolderNodeTemplate" x:DataType="viewmodels:OutputRootFolderNodeViewModel">
+            <TreeViewItem ItemsSource="{x:Bind Children, Mode=OneWay}">
+                <TextBlock Text="{x:Bind Name}" />
+            </TreeViewItem>
+        </DataTemplate>
+        <DataTemplate x:Key="FolderNodeTemplate" x:DataType="viewmodels:OutputFolderNodeViewModel">
+            <TreeViewItem ItemsSource="{x:Bind Children, Mode=OneWay}">
+                <TextBlock Text="{x:Bind Name}" />
+            </TreeViewItem>
+        </DataTemplate>
+        <DataTemplate x:Key="FileNodeTemplate" x:DataType="viewmodels:OutputFileNodeViewModel">
+            <TextBlock Text="{x:Bind Name}" />
+        </DataTemplate>
+        <views:OutputNodeTemplateSelector
+            x:Key="OutputNodeTemplateSelector"
+            FileNodeTemplate="{StaticResource FileNodeTemplate}"
+            FolderNodeTemplate="{StaticResource FolderNodeTemplate}"
+            RootFolderNodeTemplate="{StaticResource RootFolderNodeTemplate}" />
     </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" RowDefinitions="Auto,*">
@@ -305,11 +324,14 @@
                         <Run Text="{x:Bind ViewModel.PhotosCollectionView.Count, Mode=OneWay}" />
                     </TextBlock>
                 </Grid>
-                <ScrollViewer Grid.Row="1">
-                    <ItemsRepeater>
+                <Border
+                    Grid.Row="1"
+                    BorderBrush="HotPink"
+                    BorderThickness="1">
+                    <TreeView ItemTemplateSelector="{StaticResource OutputNodeTemplateSelector}" ItemsSource="{x:Bind ViewModel.OutputRootFolderNode.Children, Mode=OneWay}" />
+                </Border>
 
-                    </ItemsRepeater>
-                </ScrollViewer>
+
             </Grid>
         </Grid>
 

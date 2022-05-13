@@ -4,6 +4,7 @@ using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Controls;
 using PhotoOrganizings.Interfaces;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ public partial class MainViewModel
     private readonly IThumbnailService _thumbnailService;
 
     private readonly ObservableCollection<PhotoTaskViewModel> _photosObservableCollection = new();
-    private readonly Dictionary<ulong, PhotoTaskViewModel> _uncompletedPhotoTasks = new();
+    private readonly ConcurrentDictionary<ulong, PhotoTaskViewModel> _uncompletedPhotoTasks = new();
 
     [ObservableProperty]
     private List<string> _targetFileTypes = new() { ".jpg", ".jpeg", ".bmp", };
@@ -48,6 +49,9 @@ public partial class MainViewModel
 
     public AdvancedCollectionView PhotosCollectionView { get; private set; }
 
+    [ObservableProperty]
+    private OutputRootFolderNodeViewModel? _outputRootFolderNode;
+
     private DispatcherQueue DispatcherQueue { get; }
 
     [ICommand]
@@ -66,6 +70,8 @@ public partial class MainViewModel
         PhotoOrganizer = _photoOrganizerFactory.Create(options);
         PhotoOrganizer.PhotoTaskCreated += PhotoOrganizer_NewPhotoTaskEvent;
         PhotoOrganizer.PhotoTaskCompleted += PhotoOrganizer_PhotoTaskCompleted;
+
+        OutputRootFolderNode = new(OutputFolderPath);
 
         await PhotoOrganizer.StartAsync();
     }
@@ -92,18 +98,29 @@ public partial class MainViewModel
     {
         PhotoTaskViewModel photoTaskViewModel = new(photoTask);
         _uncompletedPhotoTasks[photoTaskViewModel.PhotoTask.ID] = photoTaskViewModel;
-        _ = DispatcherQueue.TryEnqueue(() => _photosObservableCollection.Add(photoTaskViewModel));
+        bool successed = DispatcherQueue.TryEnqueue(() => _photosObservableCollection.Add(photoTaskViewModel));
+        if (successed is false)
+        {
+            bool stop = true;
+        }
     }
 
     private void PhotoOrganizer_PhotoTaskCompleted(object? sender, PhotoTask photoTask)
     {
         if (_uncompletedPhotoTasks.TryGetValue(photoTask.ID, out PhotoTaskViewModel? photoTaskViewModel) is true)
         {
-            _ = DispatcherQueue.TryEnqueue(() =>
+            bool successed = DispatcherQueue.TryEnqueue(() =>
             {
                 photoTaskViewModel.OutputFilePath = photoTask.OutputFilePath;
                 photoTaskViewModel.Status = photoTask.Status;
+
+                OutputFileNodeViewModel fileNode = new(photoTask.OutputFilePath);
+                OutputRootFolderNode?.AddFileChild(fileNode);
             });
+            if (successed is false)
+            {
+                bool stop = true;
+            }
         }
     }
 }

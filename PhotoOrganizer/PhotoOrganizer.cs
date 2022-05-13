@@ -69,8 +69,8 @@ public class PhotoOrganizer
         {
             PhotoTask photoTask = CreatePhotoTask(photoTaskId, fileInfo);
             photoTaskId++;
-            await PhotoTaskChannel.Writer.WriteAsync(photoTask).ConfigureAwait(false);
             OnPhotoTaskCreated(photoTask);
+            await PhotoTaskChannel.Writer.WriteAsync(photoTask).ConfigureAwait(false);
         }
 
         PhotoTaskChannel.Writer.Complete();
