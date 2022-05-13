@@ -1,4 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Humanizer;
+using Humanizer.Bytes;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 
@@ -7,16 +9,16 @@ namespace PhotoOrganizings.ViewModels;
 [ObservableObject]
 public partial class PhotoTaskViewModel
 {
-    private readonly PhotoTask _photoTask;
+    public PhotoTask PhotoTask { get; }
+
+    public string ID { get; } = string.Empty;
+
+    public string InputFileName { get; } = string.Empty;
+
+    public string InputFilePath { get; } = string.Empty;
 
     [ObservableProperty]
     private BitmapImage? _thumbnail;
-
-    [ObservableProperty]
-    private string _inputFileName = string.Empty;
-
-    [ObservableProperty]
-    private string _inputFilePath = string.Empty;
 
     [ObservableProperty]
     private string? _fileSize;
@@ -27,10 +29,18 @@ public partial class PhotoTaskViewModel
     [ObservableProperty]
     private string? _outputFilePath;
 
+    [ObservableProperty]
+    private PhotoTaskResult _status;
+
     public PhotoTaskViewModel(PhotoTask photoTask)
     {
-        _photoTask = photoTask;
-        InputFileName = _photoTask.InputFileName;
-        InputFilePath = _photoTask.InputFilePath;
+        PhotoTask = photoTask;
+        ID = PhotoTask.ID.ToString();
+        InputFileName = PhotoTask.InputFileName;
+        InputFilePath = PhotoTask.InputFilePath;
+        //OutputFilePath = PhotoTask.OutputFilePath;
+        DateTaken = PhotoTask.DateTaken;
+        FileSize = new ByteSize(PhotoTask.FileSizeInBytes).Humanize();
+        Status = photoTask.Status;
     }
 }

@@ -1,21 +1,44 @@
 namespace PhotoOrganizings;
 
+public enum PhotoTaskResult
+{
+    Running,
+    Successed,
+    Error,
+}
+
 public class PhotoTask
 {
-    public PhotoTask(FileInfo fileInfo)
+    public PhotoTask(ulong id, FileInfo fileInfo)
     {
-        FileInfo = fileInfo;
+        ID = id;
+        InputFileInfo = fileInfo;
+        Status = PhotoTaskResult.Running;
     }
 
-    public FileInfo FileInfo { get; }
+    public ulong ID { get; }
 
-    public string InputFileName { get => FileInfo.Name; }
+    public FileInfo InputFileInfo { get; }
 
-    public string InputFilePath { get => FileInfo.FullName; }
+    public string InputFileFolderPath { get => InputFileInfo.DirectoryName ?? string.Empty; }
 
-    public string OutputFilePath { get; set; } = string.Empty;
+    public string InputFileName { get => InputFileInfo.Name; }
 
-    public string OutputFileName { get; set; } = string.Empty;
+    public string InputFilePath { get => InputFileInfo.FullName; }
 
-    public bool IsCompleted { get; set; } = false;
+    public long FileSizeInBytes { get => InputFileInfo.Length; }
+
+    public DateTime? DateTaken { get; set; }
+
+    public FileInfo? OutputFileInfo { get; set; }
+
+    public string OutputFileFolderPath { get => OutputFileInfo?.DirectoryName ?? string.Empty; }
+
+    public string OutputFileName { get => OutputFileInfo?.Name ?? string.Empty; }
+
+    public string OutputFilePath { get => OutputFileInfo?.FullName ?? string.Empty; }
+
+    public PhotoTaskResult Status { get; set; }
+
+    public Exception? Exception { get; set; }
 }

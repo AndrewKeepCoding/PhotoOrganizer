@@ -8,28 +8,17 @@ public class EnumToBooleanConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        if (parameter is string enumString)
+        if (value is ElementTheme enumValue &&
+            parameter is string enumString && Enum.TryParse(enumString, out ElementTheme enumParameter) is true)
         {
-            if (!Enum.IsDefined(typeof(ElementTheme), value))
-            {
-                throw new ArgumentException("ExceptionEnumToBooleanConverterValueMustBeAnEnum");
-            }
-
-            object enumValue = Enum.Parse(typeof(ElementTheme), enumString);
-
-            return enumValue.Equals(value);
+            return enumValue.Equals(enumParameter);
         }
 
-        throw new ArgumentException("ExceptionEnumToBooleanConverterParameterMustBeAnEnumName");
+        throw new ArgumentException("ExceptionEnumToBooleanConverter");
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
-        if (parameter is string enumString)
-        {
-            return Enum.Parse(typeof(ElementTheme), enumString);
-        }
-
-        throw new ArgumentException("ExceptionEnumToBooleanConverterParameterMustBeAnEnumName");
+        throw new NotImplementedException("ExceptionEnumToBooleanConverter ConvertBack");
     }
 }

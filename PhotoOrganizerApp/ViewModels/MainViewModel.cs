@@ -15,9 +15,9 @@ public partial class MainViewModel
 {
     private readonly IPhotoOrganizerFactory _photoOrganizerFactory;
     private readonly IThumbnailService _thumbnailService;
-    private readonly IMetadataService _metadataService;
 
     private readonly ObservableCollection<PhotoTaskViewModel> _photosObservableCollection = new();
+    private readonly Dictionary<ulong, PhotoTaskViewModel> _uncompletedPhotoTasks = new();
 
     [ObservableProperty]
     private List<string> _targetFileTypes = new() { ".jpg", ".jpeg", ".bmp", };
@@ -36,12 +36,10 @@ public partial class MainViewModel
 
     public MainViewModel(
         IPhotoOrganizerFactory photoOrganizerFactory,
-        IThumbnailService thumbnailService,
-        IMetadataService metadataService)
+        IThumbnailService thumbnailService)
     {
         _photoOrganizerFactory = photoOrganizerFactory;
         _thumbnailService = thumbnailService;
-        _metadataService = metadataService;
         PhotosCollectionView = new(_photosObservableCollection);
         DispatcherQueue = DispatcherQueue.GetForCurrentThread();
     }
@@ -61,11 +59,13 @@ public partial class MainViewModel
             OutputFolderPath = OutputFolderPath,
             IsSimulationMode = IsSimulationMode,
             TargetFileTypes = TargetFileTypes,
-            OutputStructureFormat = OutputStructureFormat,
+            OutputStructureFormat = OutputStructureFormat.Replace(@"\", @"\\"),
         };
+
         _photosObservableCollection.Clear();
         PhotoOrganizer = _photoOrganizerFactory.Create(options);
-        PhotoOrganizer.NewPhotoTaskEvent += PhotoOrganizer_NewPhotoTaskEvent;
+        PhotoOrganizer.PhotoTaskCreated += PhotoOrganizer_NewPhotoTaskEvent;
+        PhotoOrganizer.PhotoTaskCompleted += PhotoOrganizer_PhotoTaskCompleted;
 
         await PhotoOrganizer.StartAsync();
     }
@@ -85,14 +85,25 @@ public partial class MainViewModel
         {
             PhotoTaskViewModel photoTaskViewModel = _photosObservableCollection[photoTaskIndex];
             photoTaskViewModel.Thumbnail ??= await _thumbnailService.GetThumbnail(photoTaskViewModel.InputFilePath);
-
-            photoTaskViewModel.DateTaken = _metadataService.GetTakenDate(photoTaskViewModel.InputFilePath);
-            photoTaskViewModel.FileSize = await _metadataService.GetHumanizedFileSize(photoTaskViewModel.InputFilePath);
         }
     }
 
-    private void PhotoOrganizer_NewPhotoTaskEvent(object? sender, PhotoTask newPhotoTask)
+    private void PhotoOrganizer_NewPhotoTaskEvent(object? sender, PhotoTask photoTask)
     {
-        _ = DispatcherQueue.TryEnqueue(() => _photosObservableCollection.Add(new PhotoTaskViewModel(newPhotoTask)));
+        PhotoTaskViewModel photoTaskViewModel = new(photoTask);
+        _uncompletedPhotoTasks[photoTaskViewModel.PhotoTask.ID] = photoTaskViewModel;
+        _ = DispatcherQueue.TryEnqueue(() => _photosObservableCollection.Add(photoTaskViewModel));
+    }
+
+    private void PhotoOrganizer_PhotoTaskCompleted(object? sender, PhotoTask photoTask)
+    {
+        if (_uncompletedPhotoTasks.TryGetValue(photoTask.ID, out PhotoTaskViewModel? photoTaskViewModel) is true)
+        {
+            _ = DispatcherQueue.TryEnqueue(() =>
+            {
+                photoTaskViewModel.OutputFilePath = photoTask.OutputFilePath;
+                photoTaskViewModel.Status = photoTask.Status;
+            });
+        }
     }
 }

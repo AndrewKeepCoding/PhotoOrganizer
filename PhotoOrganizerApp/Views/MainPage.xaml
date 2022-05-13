@@ -37,6 +37,11 @@
         <converters:NullableBooleanToBooleanConverter x:Key="IsCheckedToDisabledConverter" IsInversed="True" />
         <converters:NullableBooleanToBooleanConverter x:Key="IsCheckedToEnabledConverter" IsInversed="False" />
         <converters:NullableBooleanToBooleanConverter x:Key="IsCheckedToNotReadOlnlyConverter" IsInversed="True" />
+        <converters:PhotoTaskStatusToColorConverter
+            x:Key="PhotoTaskStatusToColorConverter"
+            ErrorColor="Red"
+            RunningColor="Gray"
+            SuccessedColor="LightGreen" />
     </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" RowDefinitions="Auto,*">
@@ -170,10 +175,14 @@
         </Grid>
 
         <!--  Input/Output  -->
-        <Grid Grid.Row="1" ColumnDefinitions="2*,2,*">
+        <Grid Grid.Row="1" ColumnDefinitions="*,2,*">
             <!--  Input (Left Side)  -->
             <Grid Grid.Column="0" RowDefinitions="Auto,*">
-                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                <Grid
+                    Grid.Row="0"
+                    BorderBrush="{ThemeResource ApplicationForegroundThemeBrush}"
+                    BorderThickness="0,0,0,1"
+                    ColumnDefinitions="Auto,*,Auto">
                     <HyperlinkButton
                         x:Uid="InputFolderButton"
                         Grid.Column="0"
@@ -209,7 +218,7 @@
                                 Height="120"
                                 BorderBrush="{ThemeResource ApplicationForegroundThemeBrush}"
                                 BorderThickness="0,0,0,1"
-                                ColumnDefinitions="Auto,*">
+                                ColumnDefinitions="Auto,*,Auto">
                                 <!--  Thumbnail  -->
                                 <controls:ImageEx
                                     Grid.Column="0"
@@ -240,7 +249,7 @@
                                     <StackPanel Orientation="Horizontal">
                                         <!--  Date Taken  -->
                                         <controls:HeaderedContentControl
-                                            Width="100"
+                                            Width="200"
                                             Header="Date Taken"
                                             Style="{StaticResource HeaderedContentControlPhotoViewModelStyle}">
                                             <TextBlock Text="{x:Bind DateTaken, Mode=OneWay}" />
@@ -254,6 +263,10 @@
                                         </controls:HeaderedContentControl>
                                     </StackPanel>
                                 </StackPanel>
+                                <!--  Task Status  -->
+                                <Grid Grid.Column="2" Padding="3">
+                                    <Rectangle Width="20" Fill="{x:Bind Status, Mode=OneWay, Converter={StaticResource PhotoTaskStatusToColorConverter}}" />
+                                </Grid>
                             </Grid>
                         </DataTemplate>
 
@@ -270,7 +283,11 @@
                 ResizeDirection="Columns" />
             <!--  Output (Right Side)  -->
             <Grid Grid.Column="2" RowDefinitions="Auto,*">
-                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                <Grid
+                    Grid.Row="0"
+                    BorderBrush="{ThemeResource ApplicationForegroundThemeBrush}"
+                    BorderThickness="0,0,0,1"
+                    ColumnDefinitions="Auto,*,Auto">
                     <HyperlinkButton
                         x:Uid="OutputFolderButton"
                         Grid.Column="0"

@@ -6,6 +6,19 @@ namespace PhotoOrganizings.Converters;
 
 public class NullableBooleanToBooleanConverter : DependencyObject, IValueConverter
 {
+    public bool NullBooleanValue
+    {
+        get => (bool)GetValue(NullBooleanValueProperty);
+        set => SetValue(NullBooleanValueProperty, value);
+    }
+
+    public static readonly DependencyProperty NullBooleanValueProperty =
+        DependencyProperty.Register(
+            nameof(NullBooleanValue),
+            typeof(bool),
+            typeof(NullableBooleanToBooleanConverter),
+            new PropertyMetadata(false));
+
     public bool IsInversed
     {
         get => (bool)GetValue(IsInversedProperty);
@@ -19,13 +32,23 @@ public class NullableBooleanToBooleanConverter : DependencyObject, IValueConvert
             typeof(NullableBooleanToBooleanConverter),
             new PropertyMetadata(false));
 
-    public object Convert(object value, Type targetType, object parameter, string language)
+    public object Convert(object? value, Type targetType, object parameter, string language)
     {
-        return IsInversed is false ? (bool)value : !(bool)value;
+        if (value is bool boolValue)
+        {
+            return IsInversed is false ? boolValue : !boolValue;
+        }
+
+        return NullBooleanValue;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
-        return (bool?)value;
+        if (value is bool booleanValue)
+        {
+            return (bool?)booleanValue;
+        }
+
+        throw new ArgumentException("NullableBooleanToBooleanConverter ConvertBack");
     }
 }

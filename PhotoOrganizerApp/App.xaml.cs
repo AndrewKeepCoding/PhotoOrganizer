@@ -36,7 +36,6 @@ public partial class App : Application
         .AddSingleton<ILocalSettingsService, LocalSettingsServicePackaged>()
         .AddSingleton<IThemeSelectorService, ThemeSelectorService>()
         .AddSingleton<IActivationService, ActivationService>()
-        .AddSingleton<IMetadataService, MetadataService>()
         .AddSingleton<IThumbnailService, ThumbnailService>()
         // Views and ViewModels
         .AddSingleton<LogsViewModel>()
