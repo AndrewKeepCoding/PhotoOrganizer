@@ -91,10 +91,14 @@ public class PhotoOrganizer
 
                 outputFilePath = AddIndexToOutputFileNameIfNecessary(outputFilePath);
 
-                if (File.Exists(outputFilePath) is false)
+                if (File.Exists(outputFilePath) is false && Options.IsSimulationMode is false)
                 {
                     CreateFolder(outputFileFolderPath);
                     photoTask.OutputFileInfo = photoTask.InputFileInfo.CopyTo(outputFilePath);
+                }
+                else
+                {
+                    photoTask.OutputFileInfo = new FileInfo(outputFilePath);
                 }
             }
             catch (Exception exception)
