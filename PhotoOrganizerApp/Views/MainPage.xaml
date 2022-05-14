@@ -52,11 +52,17 @@
         </DataTemplate>
         <DataTemplate x:Key="FolderNodeTemplate" x:DataType="viewmodels:OutputFolderNodeViewModel">
             <TreeViewItem ItemsSource="{x:Bind Children, Mode=OneWay}">
-                <TextBlock Text="{x:Bind Name}" />
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <SymbolIcon Symbol="Folder" Foreground="{ThemeResource SystemColorControlAccentColor}"/>
+                    <TextBlock Text="{x:Bind Name}" />
+                </StackPanel>
             </TreeViewItem>
         </DataTemplate>
         <DataTemplate x:Key="FileNodeTemplate" x:DataType="viewmodels:OutputFileNodeViewModel">
-            <TextBlock Text="{x:Bind Name}" />
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <SymbolIcon Symbol="Camera" Foreground="{ThemeResource SystemColorControlAccentColor}"/>
+                <TextBlock Text="{x:Bind Name}" />
+            </StackPanel>
         </DataTemplate>
         <views:OutputNodeTemplateSelector
             x:Key="OutputNodeTemplateSelector"
