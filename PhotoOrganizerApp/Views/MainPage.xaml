@@ -14,13 +14,13 @@
     mc:Ignorable="d">
 
     <Page.Resources>
+        <!--  Styles  -->
         <Style x:Key="Header" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource MediumFontSize}" />
         </Style>
         <Style TargetType="CheckBox">
             <Setter Property="FontSize" Value="{StaticResource MediumFontSize}" />
         </Style>
-        <!--  HeaderedContentControl Style for PhotoViewModel  -->
         <Style x:Key="HeaderedContentControlPhotoViewModelStyle" TargetType="controls:HeaderedContentControl">
             <Setter Property="HeaderTemplate">
                 <Setter.Value>
@@ -34,15 +34,17 @@
             <Setter Property="Orientation" Value="Vertical" />
             <Setter Property="Margin" Value="15,0,0,0" />
         </Style>
+        <!--  Converters  -->
         <converters:NullableBooleanToBooleanConverter x:Key="IsCheckedToDisabledConverter" IsInversed="True" />
         <converters:NullableBooleanToBooleanConverter x:Key="IsCheckedToEnabledConverter" IsInversed="False" />
         <converters:NullableBooleanToBooleanConverter x:Key="IsCheckedToNotReadOlnlyConverter" IsInversed="True" />
+        <converters:NullableBooleanToBooleanConverter x:Key="InversedBooleanConverter" IsInversed="True" />
         <converters:PhotoTaskStatusToColorConverter
             x:Key="PhotoTaskStatusToColorConverter"
             ErrorColor="Red"
             RunningColor="Gray"
             SuccessedColor="LightGreen" />
-
+        <!--  Output TreeView Templates  -->
         <DataTemplate x:Key="RootFolderNodeTemplate" x:DataType="viewmodels:OutputRootFolderNodeViewModel">
             <TreeViewItem ItemsSource="{x:Bind Children, Mode=OneWay}">
                 <TextBlock Text="{x:Bind Name}" />
@@ -91,12 +93,14 @@
                     <AppBarToggleButton
                         x:Uid="SimulationModeAppBarToggleButton"
                         Icon="Preview"
-                        IsChecked="{x:Bind ViewModel.IsSimulationMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        IsChecked="{x:Bind ViewModel.IsSimulationMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        IsEnabled="{x:Bind ViewModel.IsOrganizingPhotos, Mode=OneWay, Converter={StaticResource InversedBooleanConverter}}" />
                     <!--  Output Structure  -->
                     <AppBarButton
                         x:Uid="OutputStructureAppBarButton"
                         AllowFocusOnInteraction="True"
-                        Icon="MoveToFolder">
+                        Icon="MoveToFolder"
+                        IsEnabled="{x:Bind ViewModel.IsOrganizingPhotos, Mode=OneWay, Converter={StaticResource InversedBooleanConverter}}">
                         <AppBarButton.Flyout>
                             <Flyout>
                                 <StackPanel MinWidth="{x:Bind OutputStructureSampleTextBox.MinWidth}" Orientation="Vertical">
@@ -188,7 +192,8 @@
                     <AppBarButton
                         x:Uid="SettingsAppBarButton"
                         Click="SettingsButton_Click"
-                        Icon="Setting" />
+                        Icon="Setting"
+                        IsEnabled="{x:Bind ViewModel.IsOrganizingPhotos, Mode=OneWay, Converter={StaticResource InversedBooleanConverter}}" />
                 </CommandBar.PrimaryCommands>
             </CommandBar>
         </Grid>
@@ -206,7 +211,8 @@
                         x:Uid="InputFolderButton"
                         Grid.Column="0"
                         Margin="0"
-                        Click="InputFolderHyperlinkButton_Click" />
+                        Click="InputFolderHyperlinkButton_Click"
+                        IsEnabled="{x:Bind ViewModel.IsOrganizingPhotos, Mode=OneWay, Converter={StaticResource InversedBooleanConverter}}" />
                     <TextBlock
                         x:Name="InputFolderTextBlock"
                         Grid.Column="1"
@@ -310,7 +316,8 @@
                     <HyperlinkButton
                         x:Uid="OutputFolderButton"
                         Grid.Column="0"
-                        Click="OutputFolderHyperlinkButton_Click" />
+                        Click="OutputFolderHyperlinkButton_Click"
+                        IsEnabled="{x:Bind ViewModel.IsOrganizingPhotos, Mode=OneWay, Converter={StaticResource InversedBooleanConverter}}" />
                     <TextBlock
                         x:Name="OutputFolderTextBlock"
                         Grid.Column="1"
@@ -324,14 +331,10 @@
                         <Run Text="{x:Bind ViewModel.PhotosCollectionView.Count, Mode=OneWay}" />
                     </TextBlock>
                 </Grid>
-                <Border
+                <TreeView
                     Grid.Row="1"
-                    BorderBrush="HotPink"
-                    BorderThickness="1">
-                    <TreeView ItemTemplateSelector="{StaticResource OutputNodeTemplateSelector}" ItemsSource="{x:Bind ViewModel.OutputRootFolderNode.Children, Mode=OneWay}" />
-                </Border>
-
-
+                    ItemTemplateSelector="{StaticResource OutputNodeTemplateSelector}"
+                    ItemsSource="{x:Bind ViewModel.OutputRootFolderNode.Children, Mode=OneWay}" />
             </Grid>
         </Grid>
 

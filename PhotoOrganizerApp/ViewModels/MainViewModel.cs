@@ -35,6 +35,9 @@ public partial class MainViewModel
     [ObservableProperty]
     private string _outputStructureFormat = string.Empty;
 
+    [ObservableProperty]
+    private bool _isOrganizingPhotos = false;
+
     public MainViewModel(
         IPhotoOrganizerFactory photoOrganizerFactory,
         IThumbnailService thumbnailService)
@@ -57,6 +60,8 @@ public partial class MainViewModel
     [ICommand]
     private async Task StartOrganizing()
     {
+        IsOrganizingPhotos = true;
+
         PhotoOrganizerOptions options = new()
         {
             InputFolderPath = InputFolderPath,
@@ -74,6 +79,8 @@ public partial class MainViewModel
         OutputRootFolderNode = new(OutputFolderPath);
 
         await PhotoOrganizer.StartAsync();
+
+        IsOrganizingPhotos = false;
     }
 
     [ICommand]

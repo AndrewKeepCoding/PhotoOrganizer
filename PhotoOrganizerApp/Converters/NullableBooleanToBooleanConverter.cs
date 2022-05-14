@@ -32,7 +32,7 @@ public class NullableBooleanToBooleanConverter : DependencyObject, IValueConvert
             typeof(NullableBooleanToBooleanConverter),
             new PropertyMetadata(false));
 
-    public object Convert(object? value, Type targetType, object parameter, string language)
+    public object Convert(object value, Type targetType, object parameter, string language)
     {
         if (value is bool boolValue)
         {
@@ -46,7 +46,7 @@ public class NullableBooleanToBooleanConverter : DependencyObject, IValueConvert
     {
         if (value is bool booleanValue)
         {
-            return (bool?)booleanValue;
+            return booleanValue;
         }
 
         throw new ArgumentException("NullableBooleanToBooleanConverter ConvertBack");
