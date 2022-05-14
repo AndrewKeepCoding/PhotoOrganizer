@@ -52,15 +52,23 @@
         </DataTemplate>
         <DataTemplate x:Key="FolderNodeTemplate" x:DataType="viewmodels:OutputFolderNodeViewModel">
             <TreeViewItem ItemsSource="{x:Bind Children, Mode=OneWay}">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                    <SymbolIcon Symbol="Folder" Foreground="{ThemeResource SystemColorControlAccentColor}"/>
-                    <TextBlock Text="{x:Bind Name}" />
-                </StackPanel>
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <SymbolIcon
+                        Grid.Column="0"
+                        Foreground="{ThemeResource SystemColorControlAccentColor}"
+                        Symbol="Folder" />
+                    <TextBlock Grid.Column="1" Text="{x:Bind Name}" />
+                    <TextBlock Grid.Column="2">
+                        <Run Text="["/>
+                        <Run Text="{x:Bind FileNodesCount, Mode=OneWay}"/>
+                        <Run Text="]"/>
+                    </TextBlock>
+                </Grid>
             </TreeViewItem>
         </DataTemplate>
         <DataTemplate x:Key="FileNodeTemplate" x:DataType="viewmodels:OutputFileNodeViewModel">
             <StackPanel Orientation="Horizontal" Spacing="5">
-                <SymbolIcon Symbol="Camera" Foreground="{ThemeResource SystemColorControlAccentColor}"/>
+                <SymbolIcon Foreground="{ThemeResource SystemColorControlAccentColor}" Symbol="Camera" />
                 <TextBlock Text="{x:Bind Name}" />
             </StackPanel>
         </DataTemplate>
@@ -339,8 +347,8 @@
                 </Grid>
                 <TreeView
                     Grid.Row="1"
-                    ItemTemplateSelector="{StaticResource OutputNodeTemplateSelector}"
                     CanReorderItems="False"
+                    ItemTemplateSelector="{StaticResource OutputNodeTemplateSelector}"
                     ItemsSource="{x:Bind ViewModel.OutputRootFolderNode.Children, Mode=OneWay}" />
             </Grid>
         </Grid>
