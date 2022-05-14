@@ -53,7 +53,7 @@ public partial class MainViewModel
     public AdvancedCollectionView PhotosCollectionView { get; private set; }
 
     [ObservableProperty]
-    private OutputRootFolderNodeViewModel? _outputRootFolderNode;
+    private OutputRootFolderNodeViewModel _outputRootFolderNode = new("");
 
     private DispatcherQueue DispatcherQueue { get; }
 
@@ -122,7 +122,7 @@ public partial class MainViewModel
                 photoTaskViewModel.Status = photoTask.Status;
 
                 OutputFileNodeViewModel fileNode = new(photoTask.OutputFilePath);
-                OutputRootFolderNode?.AddFileChild(fileNode);
+                OutputRootFolderNode.AddFileChild(fileNode);
             });
             if (successed is false)
             {

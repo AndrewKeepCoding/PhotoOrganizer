@@ -52,25 +52,28 @@
         </DataTemplate>
         <DataTemplate x:Key="FolderNodeTemplate" x:DataType="viewmodels:OutputFolderNodeViewModel">
             <TreeViewItem ItemsSource="{x:Bind Children, Mode=OneWay}">
-                <Grid ColumnDefinitions="Auto,*,Auto">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="5">
                     <SymbolIcon
                         Grid.Column="0"
                         Foreground="{ThemeResource SystemColorControlAccentColor}"
                         Symbol="Folder" />
                     <TextBlock Grid.Column="1" Text="{x:Bind Name}" />
                     <TextBlock Grid.Column="2">
-                        <Run Text="["/>
-                        <Run Text="{x:Bind FileNodesCount, Mode=OneWay}"/>
-                        <Run Text="]"/>
+                        <Run Text="[" />
+                        <Run Text="{x:Bind FileNodesCount, Mode=OneWay}" />
+                        <Run Text="]" />
                     </TextBlock>
                 </Grid>
             </TreeViewItem>
         </DataTemplate>
         <DataTemplate x:Key="FileNodeTemplate" x:DataType="viewmodels:OutputFileNodeViewModel">
-            <StackPanel Orientation="Horizontal" Spacing="5">
-                <SymbolIcon Foreground="{ThemeResource SystemColorControlAccentColor}" Symbol="Camera" />
-                <TextBlock Text="{x:Bind Name}" />
-            </StackPanel>
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="5">
+                <SymbolIcon
+                    Grid.Column="0"
+                    Foreground="{ThemeResource SystemColorControlAccentColor}"
+                    Symbol="Camera" />
+                <TextBlock Grid.Column="1" Text="{x:Bind Name}" />
+            </Grid>
         </DataTemplate>
         <views:OutputNodeTemplateSelector
             x:Key="OutputNodeTemplateSelector"
@@ -193,7 +196,7 @@
                     <AppBarElementContainer VerticalAlignment="Center" VerticalContentAlignment="Center">
                         <TextBlock
                             x:Name="OutputStructureSampleTextBox"
-                            MinWidth="400"
+                            MinWidth="300"
                             VerticalAlignment="Center"
                             FontSize="12" />
                     </AppBarElementContainer>
