@@ -16,6 +16,25 @@ public partial class OutputFolderNodeViewModel : OutputNodeViewModelBase
 
     public ObservableCollection<OutputNodeViewModelBase> Children { get; private set; } = new();
 
+    public int GetFileNodesCount()
+    {
+        int fileNodesCount = 0;
+
+        foreach (OutputNodeViewModelBase childNode in Children)
+        {
+            if (childNode is OutputFolderNodeViewModel folder)
+            {
+                fileNodesCount += folder.GetFileNodesCount();
+            }
+            else if (childNode is OutputFileNodeViewModel)
+            {
+                fileNodesCount++;
+            }
+        }
+
+        return fileNodesCount;
+    }
+
     protected void AddFileNode(OutputFileNodeViewModel fileNode, string[] folderHierarchy)
     {
         string folderName = folderHierarchy.FirstOrDefault() ?? string.Empty;
@@ -40,24 +59,5 @@ public partial class OutputFolderNodeViewModel : OutputNodeViewModelBase
         }
 
         FileNodesCount = GetFileNodesCount();
-    }
-
-    protected int GetFileNodesCount()
-    {
-        int fileNodesCount = 0;
-
-        foreach (OutputNodeViewModelBase childNode in Children)
-        {
-            if (childNode is OutputFolderNodeViewModel folder)
-            {
-                fileNodesCount += folder.GetFileNodesCount();
-            }
-            else if (childNode is OutputFileNodeViewModel)
-            {
-                fileNodesCount++;
-            }
-        }
-
-        return fileNodesCount;
     }
 }

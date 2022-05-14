@@ -1,3 +1,5 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace PhotoOrganizings.ViewModels;
 
 public class OutputRootFolderNodeViewModel : OutputFolderNodeViewModel
