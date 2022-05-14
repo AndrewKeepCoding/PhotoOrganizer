@@ -334,6 +334,7 @@
                 <TreeView
                     Grid.Row="1"
                     ItemTemplateSelector="{StaticResource OutputNodeTemplateSelector}"
+                    CanReorderItems="False"
                     ItemsSource="{x:Bind ViewModel.OutputRootFolderNode.Children, Mode=OneWay}" />
             </Grid>
         </Grid>
