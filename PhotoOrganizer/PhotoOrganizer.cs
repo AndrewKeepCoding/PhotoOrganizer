@@ -13,6 +13,12 @@ public class PhotoOrganizer
 
     public event EventHandler<PhotoTask>? PhotoTaskCompleted;
 
+    public event EventHandler? PhotoOrganizingStarted;
+
+    public event EventHandler? PhotoOrganizingCompleted;
+
+    public event EventHandler? PhotoOrganizingCanceled;
+
     public PhotoOrganizerOptions Options { get; }
 
     protected CancellationTokenSource? CancellationTokenSource { get; set; }
@@ -25,10 +31,17 @@ public class PhotoOrganizer
 
         try
         {
-            await OrganizePhotos();
+            OnPhotoOrganizingStarted();
+            await OrganizePhotos(CancellationTokenSource.Token);
+            OnPhotoOrganizingCompleted();
         }
+        //catch (Exception exception)
+        //{
+        //    // TODO: Throw custom exceptions
+        //}
         catch (OperationCanceledException)
         {
+            OnPhotoOrganizingCanceled();
         }
         finally
         {
@@ -53,33 +66,42 @@ public class PhotoOrganizer
             .ToString();
     }
 
-    protected Task OrganizePhotos()
+    protected Task OrganizePhotos(CancellationToken cancellationToken)
     {
-        Task inputTask = Task.Run(CreatePhotoTasks);
-        Task outputTask = Task.Run(ProcessPhotoTasks);
+        Task inputTask = Task.Run(() => CreatePhotoTasks(cancellationToken), CancellationToken.None);
+        Task outputTask = Task.Run(() => ProcessPhotoTasks(cancellationToken), CancellationToken.None);
 
         return Task.WhenAll(inputTask, outputTask);
     }
 
-    protected async Task CreatePhotoTasks()
+    protected async Task CreatePhotoTasks(CancellationToken cancellationToken)
     {
         ulong photoTaskId = 1;
 
         foreach (FileInfo fileInfo in LoadFiles(Options.InputFolderPath, Options.TargetFileTypes))
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             PhotoTask photoTask = CreatePhotoTask(photoTaskId, fileInfo);
             photoTaskId++;
             OnPhotoTaskCreated(photoTask);
-            await PhotoTaskChannel.Writer.WriteAsync(photoTask).ConfigureAwait(false);
+            await PhotoTaskChannel
+                .Writer
+                .WriteAsync(photoTask, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         PhotoTaskChannel.Writer.Complete();
     }
 
-    protected async Task ProcessPhotoTasks()
+    protected async Task ProcessPhotoTasks(CancellationToken cancellationToken)
     {
-        await foreach (PhotoTask photoTask in PhotoTaskChannel.Reader.ReadAllAsync().ConfigureAwait(false))
+        await foreach (PhotoTask photoTask in PhotoTaskChannel.Reader
+            .ReadAllAsync(cancellationToken)
+            .ConfigureAwait(false))
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             try
             {
                 string outputFileFolderPath = CreateDateTimeFormatedFolderPath(
@@ -147,6 +169,7 @@ public class PhotoOrganizer
 
         string fileName = Path.GetFileNameWithoutExtension(prefferedOutputFilePath);
         string? folderPath = Path.GetDirectoryName(prefferedOutputFilePath);
+
         if (folderPath is null)
         {
             throw new ArgumentException($"{prefferedOutputFilePath} has no valid folder path.");
@@ -156,6 +179,7 @@ public class PhotoOrganizer
 
         int index = 1;
         Match match = Regex.Match(fileName, @"^(.+) \((\d+)\)$");
+
         if (match.Success is true)
         {
             fileName = match.Groups[1].Value;
@@ -178,11 +202,18 @@ public class PhotoOrganizer
     protected static void CreateFolder(string folderPath)
     {
         DirectoryInfo directoryInfo = new(folderPath);
+
         if (directoryInfo.Exists is false)
         {
             directoryInfo.Create();
         }
     }
+
+    protected virtual void OnPhotoOrganizingStarted() => PhotoOrganizingStarted?.Invoke(this, EventArgs.Empty);
+
+    protected virtual void OnPhotoOrganizingCompleted() => PhotoOrganizingCompleted?.Invoke(this, EventArgs.Empty);
+
+    protected virtual void OnPhotoOrganizingCanceled() => PhotoOrganizingCanceled?.Invoke(this, EventArgs.Empty);
 
     protected virtual void OnPhotoTaskCreated(PhotoTask photoTask) => PhotoTaskCreated?.Invoke(this, photoTask);
 

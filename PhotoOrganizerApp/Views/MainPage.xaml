@@ -39,6 +39,7 @@
         <converters:NullableBooleanToBooleanConverter x:Key="IsCheckedToEnabledConverter" IsInversed="False" />
         <converters:NullableBooleanToBooleanConverter x:Key="IsCheckedToNotReadOlnlyConverter" IsInversed="True" />
         <converters:NullableBooleanToBooleanConverter x:Key="InversedBooleanConverter" IsInversed="True" />
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:PhotoTaskStatusToColorConverter
             x:Key="PhotoTaskStatusToColorConverter"
             ErrorColor="Red"
@@ -98,8 +99,18 @@
                 VerticalAlignment="Stretch"
                 Command="{x:Bind ViewModel.StartOrganizingCommand}"
                 Style="{ThemeResource AccentButtonStyle}" />
+            <!--  Cancel  -->
+            <Button
+                x:Uid="CancelButton"
+                Grid.Column="1"
+                Visibility="{x:Bind ViewModel.IsOrganizingPhotos, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                Width="100"
+                Margin="3"
+                VerticalAlignment="Stretch"
+                Command="{x:Bind ViewModel.CancelOrganizingCommand}"
+                Style="{ThemeResource AccentButtonStyle}" />
 
-            <CommandBar Grid.Column="1" DefaultLabelPosition="Right">
+            <CommandBar Grid.Column="2" DefaultLabelPosition="Right">
                 <!--  ProgressBar  -->
                 <CommandBar.Content>
                     <ProgressBar x:Name="ProgressBar" Visibility="Collapsed" />
