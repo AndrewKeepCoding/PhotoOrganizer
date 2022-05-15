@@ -37,11 +37,11 @@
 
             <!--  Log Viewer Resources  -->
             <Grid.Resources>
-                <!--  Column Widths  -->
+                <!--  Columns  -->
                 <GridLength x:Key="NumberColumnWidth">80</GridLength>
-                <GridLength x:Key="TimestampColumnWidth">200</GridLength>
-                <GridLength x:Key="LevelColumnWidth">80</GridLength>
-                <GridLength x:Key="SourceContextColumnWidth">190</GridLength>
+                <GridLength x:Key="TimestampColumnWidth">170</GridLength>
+                <GridLength x:Key="LevelColumnWidth">60</GridLength>
+                <x:Double x:Key="ColumnSpacing">10</x:Double>
                 <!--  Styles  -->
                 <Style x:Key="ColumnHeaderBorderStyle" TargetType="Border">
                     <Setter Property="Background" Value="Transparent" />
@@ -56,7 +56,7 @@
             </Grid.Resources>
 
             <!--  Column Headers  -->
-            <Grid Grid.Row="0">
+            <Grid Grid.Row="0" ColumnSpacing="{StaticResource ColumnSpacing}">
 
                 <Grid.Resources>
                     <Style BasedOn="{StaticResource ColumnHeaderBorderStyle}" TargetType="Border" />
@@ -67,29 +67,24 @@
                     <ColumnDefinition Width="{StaticResource NumberColumnWidth}" />
                     <ColumnDefinition Width="{StaticResource TimestampColumnWidth}" />
                     <ColumnDefinition Width="{StaticResource LevelColumnWidth}" />
-                    <ColumnDefinition Width="{StaticResource SourceContextColumnWidth}" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
                 <!--  No Column Header  -->
                 <Border Grid.Column="0">
-                    <TextBlock Text="No" />
+                    <TextBlock x:Uid="LogsPage_NoHeader" />
                 </Border>
                 <!--  Timestamp Column Header  -->
                 <Border Grid.Column="1">
-                    <TextBlock Text="Timestamp" />
+                    <TextBlock x:Uid="LogsPage_TimestampHeader" />
                 </Border>
                 <!--  Level Column Header  -->
                 <Border Grid.Column="2">
-                    <TextBlock Text="Level" />
-                </Border>
-                <!--  SourceContext Column Header  -->
-                <Border Grid.Column="3">
-                    <TextBlock Text="Source Context" />
+                    <TextBlock x:Uid="LogsPage_LevelHeader" />
                 </Border>
                 <!--  Message Column Header  -->
                 <Border Grid.Column="4">
-                    <TextBlock Text="Message" />
+                    <TextBlock x:Uid="LogsPage_MessageHeader" />
                 </Border>
 
             </Grid>
@@ -99,7 +94,7 @@
                 <ItemsRepeater x:Name="LogItemsRepeater">
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="logviewmodels:EmojiLogViewModel">
-                            <Grid>
+                            <Grid ColumnSpacing="{StaticResource ColumnSpacing}">
 
                                 <Grid.Resources>
                                     <Style BasedOn="{StaticResource LogElementTextBlockStyle}" TargetType="TextBlock" />
@@ -109,7 +104,6 @@
                                     <ColumnDefinition Width="{StaticResource NumberColumnWidth}" />
                                     <ColumnDefinition Width="{StaticResource TimestampColumnWidth}" />
                                     <ColumnDefinition Width="{StaticResource LevelColumnWidth}" />
-                                    <ColumnDefinition Width="{StaticResource SourceContextColumnWidth}" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
 
@@ -138,13 +132,8 @@
                                         HorizontalTextAlignment="Center"
                                         Text="{x:Bind Level.Text}" />
                                 </Grid>
-                                <!--  Source Context Element  -->
-                                <TextBlock
-                                    Grid.Column="3"
-                                    Foreground="{x:Bind SourceContext.Foreground}"
-                                    Text="{x:Bind SourceContext.Text}" />
                                 <!--  Message Elements  -->
-                                <Grid Grid.Column="4" ColumnDefinitions="Auto,Auto">
+                                <Grid Grid.Column="3" ColumnDefinitions="Auto,Auto">
                                     <!--  Message  -->
                                     <TextBlock
                                         Grid.Column="0"

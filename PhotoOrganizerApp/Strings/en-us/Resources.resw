@@ -147,6 +147,18 @@
   <data name="LogsAppBarButton.Label" xml:space="preserve">
     <value>Logs</value>
   </data>
+  <data name="LogsPage_LevelHeader.Text" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="LogsPage_MessageHeader.Text" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="LogsPage_NoHeader.Text" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="LogsPage_TimestampHeader.Text" xml:space="preserve">
+    <value>Timestamp</value>
+  </data>
   <data name="LogsPage_Title.Text" xml:space="preserve">
     <value>Logs</value>
   </data>
