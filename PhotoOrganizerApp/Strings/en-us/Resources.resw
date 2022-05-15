@@ -147,6 +147,9 @@
   <data name="LogsAppBarButton.Label" xml:space="preserve">
     <value>Logs</value>
   </data>
+  <data name="LogsPage_Title.Text" xml:space="preserve">
+    <value>Logs</value>
+  </data>
   <data name="MonthFolderCheckBox.Content" xml:space="preserve">
     <value>Month</value>
   </data>

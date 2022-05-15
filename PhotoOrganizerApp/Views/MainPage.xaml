@@ -371,7 +371,7 @@
         <views:LogsPage
             x:Name="LogsPage"
             Grid.RowSpan="2"
-            Visibility="Collapsed" />
+            Visibility="{x:Bind ViewModel.IsOrganizingPhotos, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
         <!--  Settings Page  -->
         <views:SettingsPage

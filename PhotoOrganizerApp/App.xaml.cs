@@ -20,35 +20,35 @@ public partial class App : Application
     };
 
     private static readonly IHost _host = Host
-    .CreateDefaultBuilder()
-    .ConfigureServices((context, services) =>
-    {
-        // Default Activation Handler
-        _ = services
-        .AddTransient<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>()
-        // Extensions
-        .AddMemoryCache()
-        // Core
-        .AddTransient<PhotoOrganizer>()
-        // Factories
-        .AddSingleton<IPhotoOrganizerFactory, PhotoOrganizerFactory>()
-        // Services
-        .AddSingleton<ILocalSettingsService, LocalSettingsServicePackaged>()
-        .AddSingleton<IThemeSelectorService, ThemeSelectorService>()
-        .AddSingleton<IActivationService, ActivationService>()
-        .AddSingleton<IThumbnailService, ThumbnailService>()
-        // Views and ViewModels
-        .AddSingleton<LogsViewModel>()
-        .AddSingleton<LogsPage>()
-        .AddSingleton<SettingsViewModel>()
-        .AddSingleton<SettingsPage>()
-        .AddSingleton<MainViewModel>()
-        .AddSingleton<MainPage>()
-        // Configuration
-        .Configure<PhotoOrganizerOptions>(context.Configuration.GetSection(nameof(PhotoOrganizerOptions)))
-        .Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));
-    })
-    .Build();
+        .CreateDefaultBuilder()
+        .ConfigureServices((context, services) =>
+        {
+            _ = services
+                // Default Activation Handler
+                .AddTransient<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>()
+                // Extensions
+                .AddMemoryCache()
+                // Core
+                .AddTransient<PhotoOrganizer>()
+                // Factories
+                .AddSingleton<IPhotoOrganizerFactory, PhotoOrganizerFactory>()
+                // Services
+                .AddSingleton<ILocalSettingsService, LocalSettingsServicePackaged>()
+                .AddSingleton<IThemeSelectorService, ThemeSelectorService>()
+                .AddSingleton<IActivationService, ActivationService>()
+                .AddSingleton<IThumbnailService, ThumbnailService>()
+                // Views and ViewModels
+                .AddSingleton<LogsViewModel>()
+                .AddSingleton<LogsPage>()
+                .AddSingleton<SettingsViewModel>()
+                .AddSingleton<SettingsPage>()
+                .AddSingleton<MainViewModel>()
+                .AddSingleton<MainPage>()
+                // Configuration
+                .Configure<PhotoOrganizerOptions>(context.Configuration.GetSection(nameof(PhotoOrganizerOptions)))
+                .Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));
+        })
+        .Build();
 
     public App()
     {

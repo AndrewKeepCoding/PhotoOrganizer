@@ -4,6 +4,8 @@ using CommunityToolkit.WinUI.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Controls;
 using PhotoOrganizings.Interfaces;
+using Serilog;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -38,6 +40,9 @@ public partial class MainViewModel
     [ObservableProperty]
     private bool _isOrganizingPhotos = false;
 
+    [ObservableProperty]
+    private OutputRootFolderNodeViewModel _outputRootFolderNode = new("");
+
     public MainViewModel(
         IPhotoOrganizerFactory photoOrganizerFactory,
         IThumbnailService thumbnailService)
@@ -51,15 +56,12 @@ public partial class MainViewModel
     public PhotoOrganizer? PhotoOrganizer { get; private set; }
 
     public AdvancedCollectionView PhotosCollectionView { get; private set; }
-
-    [ObservableProperty]
-    private OutputRootFolderNodeViewModel _outputRootFolderNode = new("");
-
     private DispatcherQueue DispatcherQueue { get; }
 
     [ICommand]
     private async Task StartOrganizing()
     {
+        Log.Logger.Information("StartOrganizing");
         IsOrganizingPhotos = true;
 
         PhotoOrganizerOptions options = new()
@@ -73,8 +75,11 @@ public partial class MainViewModel
 
         _photosObservableCollection.Clear();
         PhotoOrganizer = _photoOrganizerFactory.Create(options);
-        PhotoOrganizer.PhotoTaskCreated += PhotoOrganizer_NewPhotoTaskEvent;
+        PhotoOrganizer.PhotoTaskCreated += PhotoOrganizer_PhotoTaskCreated;
         PhotoOrganizer.PhotoTaskCompleted += PhotoOrganizer_PhotoTaskCompleted;
+        PhotoOrganizer.PhotoOrganizingStarted += PhotoOrganizer_PhotoOrganizingStarted;
+        PhotoOrganizer.PhotoOrganizingCompleted += PhotoOrganizer_PhotoOrganizingCompleted;
+        PhotoOrganizer.PhotoOrganizingCanceled += PhotoOrganizer_PhotoOrganizingCanceled;
 
         OutputRootFolderNode = new(OutputFolderPath);
 
@@ -101,33 +106,52 @@ public partial class MainViewModel
         }
     }
 
-    private void PhotoOrganizer_NewPhotoTaskEvent(object? sender, PhotoTask photoTask)
+    private void PhotoOrganizer_PhotoTaskCreated(object? sender, PhotoTask photoTask)
     {
+        Log.Logger.Information($"PhotoTaskCreated PhotoTask [{photoTask.ID}: {photoTask.InputFileName}] Start");
         PhotoTaskViewModel photoTaskViewModel = new(photoTask);
         _uncompletedPhotoTasks[photoTaskViewModel.PhotoTask.ID] = photoTaskViewModel;
-        bool successed = DispatcherQueue.TryEnqueue(() => _photosObservableCollection.Add(photoTaskViewModel));
-        if (successed is false)
+
+        if (DispatcherQueue.TryEnqueue(() => _photosObservableCollection.Add(photoTaskViewModel)) is false)
         {
-            bool stop = true;
+            Log.Logger.Error($"PhotoTaskCreated TryEnqueue() failed trying PhotoTask [{photoTask.ID}: {photoTask.InputFileName}]");
         }
+
+        Log.Logger.Information($"PhotoTaskCreated PhotoTask [{photoTask.ID}: {photoTask.InputFileName}] End");
     }
 
     private void PhotoOrganizer_PhotoTaskCompleted(object? sender, PhotoTask photoTask)
     {
+        Log.Logger.Information($"PhotoTaskCompleted PhotoTask [{photoTask.ID}: {photoTask.InputFileName}] Start");
         if (_uncompletedPhotoTasks.TryGetValue(photoTask.ID, out PhotoTaskViewModel? photoTaskViewModel) is true)
         {
-            bool successed = DispatcherQueue.TryEnqueue(() =>
+            if (DispatcherQueue.TryEnqueue(() =>
             {
                 photoTaskViewModel.OutputFilePath = photoTask.OutputFilePath;
                 photoTaskViewModel.Status = photoTask.Status;
 
                 OutputFileNodeViewModel fileNode = new(photoTask.OutputFilePath);
                 OutputRootFolderNode.AddFileChild(fileNode);
-            });
-            if (successed is false)
+            }) is false)
             {
-                bool stop = true;
+                Log.Logger.Error($"PhotoTaskCompleted TryEnqueue() failed trying PhotoTask [{photoTask.ID}: {photoTask.InputFileName}]");
             }
         }
+        Log.Logger.Information($"PhotoTaskCompleted PhotoTask [{photoTask.ID}: {photoTask.InputFileName}] End");
+    }
+
+    private void PhotoOrganizer_PhotoOrganizingStarted(object? sender, EventArgs e)
+    {
+        Log.Logger.Information("PhotoOrganizer started event");
+    }
+
+    private void PhotoOrganizer_PhotoOrganizingCompleted(object? sender, EventArgs e)
+    {
+        Log.Logger.Information("PhotoOrganizer completed event");
+    }
+
+    private void PhotoOrganizer_PhotoOrganizingCanceled(object? sender, EventArgs e)
+    {
+        Log.Logger.Information("PhotoOrganizer cancel event");
     }
 }
