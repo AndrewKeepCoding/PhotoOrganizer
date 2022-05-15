@@ -102,6 +102,9 @@ public class PhotoOrganizer
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            // TODO: Remove this when the TreeView bug gets fixed.
+            await Task.Delay(10, cancellationToken);
+
             try
             {
                 string outputFileFolderPath = CreateDateTimeFormatedFolderPath(

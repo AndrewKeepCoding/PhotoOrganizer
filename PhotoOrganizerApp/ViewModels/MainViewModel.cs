@@ -109,12 +109,19 @@ public partial class MainViewModel
     private void PhotoOrganizer_PhotoTaskCreated(object? sender, PhotoTask photoTask)
     {
         Log.Logger.Information($"PhotoTaskCreated PhotoTask [{photoTask.ID}: {photoTask.InputFileName}] Start");
-        PhotoTaskViewModel photoTaskViewModel = new(photoTask);
-        _uncompletedPhotoTasks[photoTaskViewModel.PhotoTask.ID] = photoTaskViewModel;
 
-        if (DispatcherQueue.TryEnqueue(() => _photosObservableCollection.Add(photoTaskViewModel)) is false)
+        PhotoTaskViewModel photoTaskViewModel = new(photoTask);
+
+        if (_uncompletedPhotoTasks.TryAdd(photoTaskViewModel.PhotoTask.ID, photoTaskViewModel) is true)
         {
-            Log.Logger.Error($"PhotoTaskCreated TryEnqueue() failed trying PhotoTask [{photoTask.ID}: {photoTask.InputFileName}]");
+            if (DispatcherQueue.TryEnqueue(() => _photosObservableCollection.Add(photoTaskViewModel)) is false)
+            {
+                Log.Logger.Error($"PhotoTaskCreated TryEnqueue() failed trying PhotoTask [{photoTask.ID}: {photoTask.InputFileName}]");
+            }
+        }
+        else
+        {
+            Log.Logger.Error($"PhotoTaskCompleted TryAdd() failed trying PhotoTask [{photoTask.ID}: {photoTask.InputFileName}]");
         }
 
         Log.Logger.Information($"PhotoTaskCreated PhotoTask [{photoTask.ID}: {photoTask.InputFileName}] End");
@@ -123,7 +130,8 @@ public partial class MainViewModel
     private void PhotoOrganizer_PhotoTaskCompleted(object? sender, PhotoTask photoTask)
     {
         Log.Logger.Information($"PhotoTaskCompleted PhotoTask [{photoTask.ID}: {photoTask.InputFileName}] Start");
-        if (_uncompletedPhotoTasks.TryGetValue(photoTask.ID, out PhotoTaskViewModel? photoTaskViewModel) is true)
+
+        if (_uncompletedPhotoTasks.TryRemove(photoTask.ID, out PhotoTaskViewModel? photoTaskViewModel) is true)
         {
             if (DispatcherQueue.TryEnqueue(() =>
             {
@@ -137,6 +145,11 @@ public partial class MainViewModel
                 Log.Logger.Error($"PhotoTaskCompleted TryEnqueue() failed trying PhotoTask [{photoTask.ID}: {photoTask.InputFileName}]");
             }
         }
+        else
+        {
+            Log.Logger.Error($"PhotoTaskCompleted TryRemove() failed trying PhotoTask [{photoTask.ID}: {photoTask.InputFileName}]");
+        }
+
         Log.Logger.Information($"PhotoTaskCompleted PhotoTask [{photoTask.ID}: {photoTask.InputFileName}] End");
     }
 

@@ -47,12 +47,12 @@
             SuccessedColor="LightGreen" />
         <!--  Output TreeView Templates  -->
         <DataTemplate x:Key="RootFolderNodeTemplate" x:DataType="viewmodels:OutputRootFolderNodeViewModel">
-            <TreeViewItem ItemsSource="{x:Bind Children, Mode=OneWay}">
+            <TreeViewItem HasUnrealizedChildren="True" ItemsSource="{x:Bind Children, Mode=OneWay}">
                 <TextBlock Text="{x:Bind Name}" />
             </TreeViewItem>
         </DataTemplate>
         <DataTemplate x:Key="FolderNodeTemplate" x:DataType="viewmodels:OutputFolderNodeViewModel">
-            <TreeViewItem ItemsSource="{x:Bind Children, Mode=OneWay}">
+            <TreeViewItem HasUnrealizedChildren="True" ItemsSource="{x:Bind Children, Mode=OneWay}">
                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="5">
                     <SymbolIcon
                         Grid.Column="0"
@@ -103,12 +103,12 @@
             <Button
                 x:Uid="CancelButton"
                 Grid.Column="1"
-                Visibility="{x:Bind ViewModel.IsOrganizingPhotos, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
                 Width="100"
                 Margin="3"
                 VerticalAlignment="Stretch"
                 Command="{x:Bind ViewModel.CancelOrganizingCommand}"
-                Style="{ThemeResource AccentButtonStyle}" />
+                Style="{ThemeResource AccentButtonStyle}"
+                Visibility="{x:Bind ViewModel.IsOrganizingPhotos, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
             <CommandBar Grid.Column="2" DefaultLabelPosition="Right">
                 <!--  ProgressBar  -->
@@ -363,7 +363,8 @@
                     Grid.Row="1"
                     CanReorderItems="False"
                     ItemTemplateSelector="{StaticResource OutputNodeTemplateSelector}"
-                    ItemsSource="{x:Bind ViewModel.OutputRootFolderNode.Children, Mode=OneWay}" />
+                    ItemsSource="{x:Bind ViewModel.OutputRootFolderNode.Children, Mode=OneWay}"
+                    SelectionMode="None" />
             </Grid>
         </Grid>
 
