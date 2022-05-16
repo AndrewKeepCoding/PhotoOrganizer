@@ -26,9 +26,11 @@ public partial class MainViewModel
     private List<string> _targetFileTypes = new() { ".jpg", ".jpeg", ".bmp", };
 
     [ObservableProperty]
+    [AlsoNotifyCanExecuteFor(nameof(StartOrganizingCommand))]
     private string _inputFolderPath = @"C:\Photos\Input";// string.Empty;
 
     [ObservableProperty]
+    [AlsoNotifyCanExecuteFor(nameof(StartOrganizingCommand))]
     private string _outputFolderPath = @"C:\Photos\Output";// string.Empty;
 
     [ObservableProperty]
@@ -39,6 +41,14 @@ public partial class MainViewModel
 
     [ObservableProperty]
     private bool _isOrganizingPhotos = false;
+
+    private bool CanStartPhotoOrganizing()
+    {
+        return
+            _inputFolderPath.Length > 0 &&
+            _outputFolderPath.Length > 0 &&
+            IsOrganizingPhotos is false;
+    }
 
     [ObservableProperty]
     private OutputRootFolderNodeViewModel _outputRootFolderNode = new("");
@@ -56,9 +66,10 @@ public partial class MainViewModel
     public PhotoOrganizer? PhotoOrganizer { get; private set; }
 
     public AdvancedCollectionView PhotosCollectionView { get; private set; }
+
     private DispatcherQueue DispatcherQueue { get; }
 
-    [ICommand]
+    [ICommand(CanExecute = nameof(CanStartPhotoOrganizing))]
     private async Task StartOrganizing()
     {
         Log.Logger.Information("StartOrganizing");
