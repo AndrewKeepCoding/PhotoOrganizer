@@ -27,6 +27,7 @@ public class PhotoOrganizer
 
     public async Task StartAsync()
     {
+        ValidateOptions();
         CancellationTokenSource = new CancellationTokenSource();
 
         try
@@ -35,13 +36,14 @@ public class PhotoOrganizer
             await OrganizePhotos(CancellationTokenSource.Token);
             OnPhotoOrganizingCompleted();
         }
-        //catch (Exception exception)
-        //{
-        //    // TODO: Throw custom exceptions
-        //}
         catch (OperationCanceledException)
         {
             OnPhotoOrganizingCanceled();
+        }
+        catch (Exception)
+        {
+            // TODO: Throw custom exceptions
+            throw;
         }
         finally
         {
@@ -55,6 +57,19 @@ public class PhotoOrganizer
     {
         CancellationTokenSource?.Cancel();
         PhotoTaskChannel.Writer.Complete();
+    }
+
+    protected void ValidateOptions()
+    {
+        if (Directory.Exists(Options.InputFolderPath) is false)
+        {
+            throw new Exception($"InputFolderPath: {Options.InputFolderPath} does not exits.");
+        }
+
+        if (Directory.Exists(Options.OutputFolderPath) is false)
+        {
+            throw new Exception($"OutputFolderPath: {Options.OutputFolderPath} does not exits.");
+        }
     }
 
     protected static string? CreateDateTimeFormatedFolderPath(DateTime? dateTaken, string outputBaseFolderPath, string outputFolderFormat)

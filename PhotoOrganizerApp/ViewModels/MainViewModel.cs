@@ -72,31 +72,40 @@ public partial class MainViewModel
     [ICommand(CanExecute = nameof(CanStartPhotoOrganizing))]
     private async Task StartOrganizing()
     {
-        Log.Logger.Information("StartOrganizing");
-        IsOrganizingPhotos = true;
-
-        PhotoOrganizerOptions options = new()
+        try
         {
-            InputFolderPath = InputFolderPath,
-            OutputFolderPath = OutputFolderPath,
-            IsSimulationMode = IsSimulationMode,
-            TargetFileTypes = TargetFileTypes,
-            OutputStructureFormat = OutputStructureFormat.Replace(@"\", @"\\"),
-        };
+            IsOrganizingPhotos = true;
+            Log.Logger.Information("StartOrganizing");
 
-        _photosObservableCollection.Clear();
-        PhotoOrganizer = _photoOrganizerFactory.Create(options);
-        PhotoOrganizer.PhotoTaskCreated += PhotoOrganizer_PhotoTaskCreated;
-        PhotoOrganizer.PhotoTaskCompleted += PhotoOrganizer_PhotoTaskCompleted;
-        PhotoOrganizer.PhotoOrganizingStarted += PhotoOrganizer_PhotoOrganizingStarted;
-        PhotoOrganizer.PhotoOrganizingCompleted += PhotoOrganizer_PhotoOrganizingCompleted;
-        PhotoOrganizer.PhotoOrganizingCanceled += PhotoOrganizer_PhotoOrganizingCanceled;
+            PhotoOrganizerOptions options = new()
+            {
+                InputFolderPath = InputFolderPath,
+                OutputFolderPath = OutputFolderPath,
+                IsSimulationMode = IsSimulationMode,
+                TargetFileTypes = TargetFileTypes,
+                OutputStructureFormat = OutputStructureFormat.Replace(@"\", @"\\"),
+            };
 
-        OutputRootFolderNode = new(OutputFolderPath);
+            _photosObservableCollection.Clear();
+            PhotoOrganizer = _photoOrganizerFactory.Create(options);
+            PhotoOrganizer.PhotoTaskCreated += PhotoOrganizer_PhotoTaskCreated;
+            PhotoOrganizer.PhotoTaskCompleted += PhotoOrganizer_PhotoTaskCompleted;
+            PhotoOrganizer.PhotoOrganizingStarted += PhotoOrganizer_PhotoOrganizingStarted;
+            PhotoOrganizer.PhotoOrganizingCompleted += PhotoOrganizer_PhotoOrganizingCompleted;
+            PhotoOrganizer.PhotoOrganizingCanceled += PhotoOrganizer_PhotoOrganizingCanceled;
 
-        await PhotoOrganizer.StartAsync();
+            OutputRootFolderNode = new(OutputFolderPath);
 
-        IsOrganizingPhotos = false;
+            await PhotoOrganizer.StartAsync();
+        }
+        catch (Exception exception)
+        {
+            Log.Error(exception, "StartOrganizing() Failed");
+        }
+        finally
+        {
+            IsOrganizingPhotos = false;
+        }
     }
 
     [ICommand]
