@@ -81,14 +81,18 @@ public sealed partial class MainPage : Page
 
     private async void InputFolderHyperlinkButton_Click(object sender, RoutedEventArgs e)
     {
-        StorageFolder? folder = await SelectFolderAsync();
-        InputFolderTextBlock.Text = folder?.Path;
+        if (await SelectFolderAsync() is StorageFolder storageFolder)
+        {
+            InputFolderTextBlock.Text = storageFolder.Path;
+        }
     }
 
     private async void OutputFolderHyperlinkButton_Click(object sender, RoutedEventArgs e)
     {
-        StorageFolder? folder = await SelectFolderAsync();
-        OutputFolderTextBlock.Text = folder?.Path;
+        if (await SelectFolderAsync() is StorageFolder storageFolder)
+        {
+            OutputFolderTextBlock.Text = storageFolder.Path;
+        }
     }
 
     private async Task<StorageFolder?> SelectFolderAsync()
