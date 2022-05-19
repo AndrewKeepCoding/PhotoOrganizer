@@ -368,7 +368,7 @@
             </Grid>
         </Grid>
 
-        <!--  Settings Page  -->
+        <!--  Logs Page  -->
         <views:LogsPage
             x:Name="LogsPage"
             Grid.RowSpan="2"
