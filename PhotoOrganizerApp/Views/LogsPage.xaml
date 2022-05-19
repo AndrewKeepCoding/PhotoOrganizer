@@ -1,0 +1,159 @@
+<Page
+    x:Class="PhotoOrganizings.Views.LogsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:logviewmodels="using:Serilog.Sinks.WinUi3.LogViewModels"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid
+        Padding="20"
+        Background="Black"
+        Opacity="0.9"
+        RowDefinitions="Auto,*">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
+            <TextBlock
+                x:Uid="LogsPage_Title"
+                Grid.Column="0"
+                Style="{ThemeResource SubtitleTextBlockStyle}" />
+            <Button
+                x:Uid="LogsPage_CloseButton"
+                Grid.Column="1"
+                HorizontalAlignment="Right"
+                Click="CloseButton_Click"
+                Content="Close" />
+        </Grid>
+
+        <!--  Log Viewer  -->
+        <Grid
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Margin="10"
+            Background="Transparent"
+            RowDefinitions="Auto,*">
+
+            <!--  Log Viewer Resources  -->
+            <Grid.Resources>
+                <!--  Columns  -->
+                <GridLength x:Key="NumberColumnWidth">80</GridLength>
+                <GridLength x:Key="TimestampColumnWidth">170</GridLength>
+                <GridLength x:Key="LevelColumnWidth">60</GridLength>
+                <x:Double x:Key="ColumnSpacing">10</x:Double>
+                <!--  Styles  -->
+                <Style x:Key="ColumnHeaderBorderStyle" TargetType="Border">
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="Padding" Value="0,0,10,0" />
+                </Style>
+                <Style x:Key="ColumnHeaderTextBlockStyle" TargetType="TextBlock">
+                    <Setter Property="FontWeight" Value="Bold" />
+                </Style>
+                <Style x:Key="LogElementTextBlockStyle" TargetType="TextBlock">
+                    <Setter Property="Padding" Value="0,0,10,0" />
+                </Style>
+            </Grid.Resources>
+
+            <!--  Column Headers  -->
+            <Grid Grid.Row="0" ColumnSpacing="{StaticResource ColumnSpacing}">
+
+                <Grid.Resources>
+                    <Style BasedOn="{StaticResource ColumnHeaderBorderStyle}" TargetType="Border" />
+                    <Style BasedOn="{StaticResource ColumnHeaderTextBlockStyle}" TargetType="TextBlock" />
+                </Grid.Resources>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{StaticResource NumberColumnWidth}" />
+                    <ColumnDefinition Width="{StaticResource TimestampColumnWidth}" />
+                    <ColumnDefinition Width="{StaticResource LevelColumnWidth}" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!--  No Column Header  -->
+                <Border Grid.Column="0">
+                    <TextBlock x:Uid="LogsPage_NoHeader" />
+                </Border>
+                <!--  Timestamp Column Header  -->
+                <Border Grid.Column="1">
+                    <TextBlock x:Uid="LogsPage_TimestampHeader" />
+                </Border>
+                <!--  Level Column Header  -->
+                <Border Grid.Column="2">
+                    <TextBlock x:Uid="LogsPage_LevelHeader" />
+                </Border>
+                <!--  Message Column Header  -->
+                <Border Grid.Column="4">
+                    <TextBlock x:Uid="LogsPage_MessageHeader" />
+                </Border>
+
+            </Grid>
+
+            <!--  Log Viewer ItemsRepeater  -->
+            <ScrollViewer x:Name="LogScrollViewer" Grid.Row="1">
+                <ItemsRepeater x:Name="LogItemsRepeater">
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="logviewmodels:EmojiLogViewModel">
+                            <Grid ColumnSpacing="{StaticResource ColumnSpacing}">
+
+                                <Grid.Resources>
+                                    <Style BasedOn="{StaticResource LogElementTextBlockStyle}" TargetType="TextBlock" />
+                                </Grid.Resources>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="{StaticResource NumberColumnWidth}" />
+                                    <ColumnDefinition Width="{StaticResource TimestampColumnWidth}" />
+                                    <ColumnDefinition Width="{StaticResource LevelColumnWidth}" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <!--  No Element  -->
+                                <TextBlock
+                                    Grid.Column="0"
+                                    HorizontalAlignment="Right"
+                                    Text="{x:Bind Id}" />
+                                <!--  Timestamp Element  -->
+                                <TextBlock
+                                    Grid.Column="1"
+                                    Foreground="{x:Bind Timestamp.Foreground}"
+                                    HorizontalTextAlignment="Left"
+                                    Text="{x:Bind Timestamp.Text}" />
+                                <!--  Level Elements  -->
+                                <Grid Grid.Column="2" ColumnDefinitions="Auto,Auto">
+                                    <!--  Emoji  -->
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        HorizontalTextAlignment="Center"
+                                        Text="{x:Bind Emoji}" />
+                                    <!--  Level  -->
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="{x:Bind Level.Foreground}"
+                                        HorizontalTextAlignment="Center"
+                                        Text="{x:Bind Level.Text}" />
+                                </Grid>
+                                <!--  Message Elements  -->
+                                <Grid Grid.Column="3" ColumnDefinitions="Auto,Auto">
+                                    <!--  Message  -->
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Foreground="{x:Bind Message.Foreground}"
+                                        Text="{x:Bind Message.Text}" />
+                                    <!--  Exception  -->
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="{x:Bind Exception.Foreground}"
+                                        Text="{x:Bind Exception.Text}"
+                                        Visibility="{x:Bind ExceptionVisibility}" />
+                                </Grid>
+
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </ScrollViewer>
+
+        </Grid>
+
+    </Grid>
+</Page>
