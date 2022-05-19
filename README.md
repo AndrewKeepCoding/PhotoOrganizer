@@ -11,9 +11,9 @@ This is a work in progress project.
 - [Part 5: Git Squash with Visual Studio 2022](https://youtu.be/jiVMFYcPSNs)
 - [Part 6: GitHub Issue Fix Branch Pull Request Merge](https://youtu.be/zXkYxG-a2fQ)
 - [Part 7: Logging with Serilog.Sinks.WinUi3](https://youtu.be/P44vT1B9McU)
+- [Part 8: STARTING OVER](https://youtu.be/MACrznqBCTE)
 
 ## 🔥 Upcoming / Backlogs (random order)
-- File Copying (Organizing)
 - Error Handling
 - Unit Testing
 - Memory Cache Size
